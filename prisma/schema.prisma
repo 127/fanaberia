@@ -19,6 +19,36 @@ model Admin {
   @@map(name: "admins")
 }
 
+model User {
+  id       Int    @id @default(autoincrement())
+  email    String @unique
+  password String
+
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  deleted_at DateTime?
+
+  confirmed_at       DateTime?
+  confirmation_token String?   @unique
+
+  sign_in_count Int @default(0)
+
+  current_sign_in_at DateTime?
+  last_sign_in_at    DateTime?
+
+  current_sign_in_ip String?
+  last_sign_in_ip    String?
+
+  reset_password_token   String?   @unique
+  reset_password_sent_at DateTime?
+
+  theme  Boolean @default(false) // false — dark, true — light
+  locale String  @default("en")
+
+  @@map(name: "users")
+}
+
 model Post {
   id          Int       @id @default(autoincrement())
   slug        String    @unique
@@ -41,15 +71,17 @@ model Post {
 }
 
 model Category {
-  id          Int     @id @default(autoincrement())
+  id          Int      @id @default(autoincrement())
   name        String
-  slug        String  @unique
+  slug        String   @unique
   title       String?
   keywords    String?
   description String?
   heading     String?
   posts       Post[]
-  locale      String  @default("en")
+  locale      String   @default("en")
+  created_at  DateTime @default(now())
+  updated_at  DateTime @updatedAt
 
   @@map(name: "categories")
 }
@@ -62,16 +94,19 @@ model Tag {
   keywords    String?
   description String?
   heading     String?
+  created_at  DateTime  @default(now())
+  updated_at  DateTime  @updatedAt
   posts       PostTag[]
 
   @@map(name: "tags")
 }
 
 model PostTag {
-  post_id Int
-  tag_id  Int
-  post    Post @relation(fields: [post_id], references: [id])
-  tag     Tag  @relation(fields: [tag_id], references: [id])
+  post_id    Int
+  tag_id     Int
+  post       Post     @relation(fields: [post_id], references: [id])
+  tag        Tag      @relation(fields: [tag_id], references: [id])
+  created_at DateTime @default(now())
 
   @@id([post_id, tag_id])
   @@map(name: "posts_tags")
@@ -95,7 +130,7 @@ model File {
 }
 
 model Page {
-  id          Int    @id @default(autoincrement())
+  id          Int      @id @default(autoincrement())
   name        String
   slug        String
   title       String
@@ -103,7 +138,9 @@ model Page {
   description String
   heading     String
   content     String
-  locale      String @default("en")
+  locale      String   @default("en")
+  created_at  DateTime @default(now())
+  updated_at  DateTime @updatedAt
 
   @@unique([slug, locale])
   @@map(name: "pages")

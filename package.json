@@ -12,6 +12,7 @@
     "setup": "prisma generate && prisma migrate deploy && prisma db seed"
   },
   "dependencies": {
+    "@google-recaptcha/react": "^1.0.3",
     "@nextui-org/react": "^2.3.6",
     "@prisma/client": "^5.13.0",
     "@remix-run/css-bundle": "2.9.1",

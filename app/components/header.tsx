@@ -7,16 +7,28 @@ import {
   NavbarMenu,
   NavbarContent,
   NavbarItem,
+  Button,
   Divider,
+  Dropdown,
+  DropdownItem,
+  DropdownMenu,
+  DropdownTrigger,
 } from "@nextui-org/react";
-import { Link } from "@remix-run/react";
+import { Form, Link } from "@remix-run/react";
 import { useTranslation } from "react-i18next";
 import { Logo } from "~/assets/Logo";
 import DarkModeSwitcher from "./DarkModeSwitcher";
-import { UNAUTHORIZED_INDEX } from "~/utils/utils.common";
+import {
+  AUTHORIZED_USER_INDEX,
+  UNAUTHORIZED_INDEX,
+} from "~/utils/utils.common";
+import { UserIcon } from "~/assets/UserIcon";
 import LanguageSwitcher from "./LanguageSwitcher";
 
-const Header: React.FC<{ isDarkMode: boolean }> = ({ isDarkMode }) => {
+const Header: React.FC<{ userExists: boolean; isDarkMode: boolean }> = ({
+  userExists,
+  isDarkMode,
+}) => {
   const { t, i18n } = useTranslation("common");
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const toggleMenu = () => setIsMenuOpen(!isMenuOpen);
@@ -62,6 +74,22 @@ const Header: React.FC<{ isDarkMode: boolean }> = ({ isDarkMode }) => {
             {t("nav.label.home")}
           </Link>
         </NavbarItem>
+        {userExists && (
+          <NavbarItem>
+            <Link
+              className="text-primary dark:text-warning-500"
+              to={AUTHORIZED_USER_INDEX}
+            >
+              {t("nav.label.courses.own")}
+            </Link>
+          </NavbarItem>
+        )}
+        {/* 
+       <NavbarItem>
+          <Link color="foreground" to="/chart">
+            {t("nav.label.chart")}
+          </Link>
+        </NavbarItem> */}
         <NavbarItem>
           <Link color="foreground" to={`/${i18n.language}/posts`}>
             {t("nav.label.blog")}
@@ -70,9 +98,51 @@ const Header: React.FC<{ isDarkMode: boolean }> = ({ isDarkMode }) => {
       </NavbarContent>
 
       <NavbarContent justify="end">
-        <NavbarItem className="hidden md:flex">
-          <DarkModeSwitcher isDarkMode={isDarkMode} />
-        </NavbarItem>
+        {userExists ? (
+          <div className="hidden md:block">
+            <Dropdown>
+              <DropdownTrigger>
+                <Button variant="light">
+                  <UserIcon />
+                  {t("nav.label.profile")}
+                </Button>
+              </DropdownTrigger>
+              <DropdownMenu aria-label="Static Actions">
+                <DropdownItem key="theme" className="text-center">
+                  <DarkModeSwitcher isDarkMode={isDarkMode} />
+                </DropdownItem>
+                <DropdownItem key="logout">
+                  <Form action="/auth/sign-out" method="post">
+                    <Button type="submit" className="w-full">
+                      {t("sign.out.label")}
+                    </Button>
+                  </Form>
+                </DropdownItem>
+              </DropdownMenu>
+            </Dropdown>
+          </div>
+        ) : (
+          <>
+            <NavbarItem className="hidden md:flex">
+              <Link to="/auth/sign-in">{t("sign.in.label")}</Link>
+            </NavbarItem>
+            <NavbarItem>
+              <Button
+                as={Link}
+                color="warning"
+                to="/auth/sign-up"
+                variant="flat"
+                reloadDocument
+              >
+                {t("sign.up.label")}
+              </Button>
+            </NavbarItem>
+            <Divider orientation="vertical" className="hidden md:flex" />
+            <NavbarItem className="hidden md:flex">
+              <DarkModeSwitcher isDarkMode={isDarkMode} />
+            </NavbarItem>
+          </>
+        )}
         <NavbarItem className="hidden md:block">
           <LanguageSwitcher selectedLocale={i18n.language} />
         </NavbarItem>
@@ -91,6 +161,35 @@ const Header: React.FC<{ isDarkMode: boolean }> = ({ isDarkMode }) => {
           </span>
         </NavbarMenuItem>
         <Divider />
+        {userExists && (
+          <NavbarMenuItem>
+            <Link
+              color="foreground"
+              to={AUTHORIZED_USER_INDEX}
+              onClick={toggleMenu}
+            >
+              {t("nav.label.courses.own")}
+            </Link>
+          </NavbarMenuItem>
+        )}
+        {/* 
+        <NavbarMenuItem
+          key="mnu-home"
+          className=" flex flex-row justify-between"
+        >
+          <Link color="foreground" to={homeUrl} onClick={toggleMenu}>
+            {t("nav.label.courses")}
+          </Link>
+          <span>
+            <DarkModeSwitcher />
+          </span>
+        </NavbarMenuItem>
+        <Divider />
+        {/* <NavbarMenuItem>
+          <Link color="foreground" to="/chart" size="lg">
+            {t("nav.label.chart")}
+          </Link>
+        </NavbarMenuItem> */}
         <NavbarMenuItem>
           <Link
             color="foreground"
@@ -101,27 +200,45 @@ const Header: React.FC<{ isDarkMode: boolean }> = ({ isDarkMode }) => {
           </Link>
         </NavbarMenuItem>
         <Divider />
-        <NavbarMenuItem key="mnu-sing-in">
-          <Link
-            color="foreground"
-            className="w-full"
-            to="/auth/sign-in"
-            onClick={toggleMenu}
-          >
-            {t("sign.in.label")}
-          </Link>
-        </NavbarMenuItem>
-        <NavbarMenuItem key="mnu-sign-up">
-          <Link
-            color="warning"
-            className="w-full"
-            to="/auth/sign-up"
-            onClick={toggleMenu}
-            reloadDocument
-          >
-            {t("sign.up.label")}
-          </Link>
-        </NavbarMenuItem>
+        {userExists ? (
+          <NavbarMenuItem key="mnu-sign-out" onClick={toggleMenu}>
+            <Form action="/auth/sign-out" method="post">
+              <Button
+                type="submit"
+                color="danger"
+                className="w-full"
+                size="lg"
+                onClick={toggleMenu}
+              >
+                {t("sign.out.label")}
+              </Button>
+            </Form>
+          </NavbarMenuItem>
+        ) : (
+          <>
+            <NavbarMenuItem key="mnu-sing-in">
+              <Link
+                color="foreground"
+                className="w-full"
+                to="/auth/sign-in"
+                onClick={toggleMenu}
+              >
+                {t("sign.in.label")}
+              </Link>
+            </NavbarMenuItem>
+            <NavbarMenuItem key="mnu-sign-up">
+              <Link
+                color="warning"
+                className="w-full"
+                to="/auth/sign-up"
+                onClick={toggleMenu}
+                reloadDocument
+              >
+                {t("sign.up.label")}
+              </Link>
+            </NavbarMenuItem>
+          </>
+        )}
       </NavbarMenu>
     </Navbar>
   );
