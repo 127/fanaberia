@@ -2,6 +2,7 @@ import { PrismaClient, Category, Post, Page, PostTag } from "@prisma/client";
 import bcrypt from "bcryptjs";
 import { allFakers } from "@faker-js/faker";
 import i18n from "~/i18n";
+import { generateToken } from "~/utils/utils.server";
 
 const capitalizeFirstLetter = (str: string): string =>
   str.charAt(0).toUpperCase() + str.slice(1);
@@ -11,7 +12,24 @@ const prisma = new PrismaClient();
 const INFO_PAGES = ["support", "contacts", "privacy", "terms", "faq"];
 
 async function seed() {
+  const email = "confirmed@domain.test";
   const hashedPassword = await bcrypt.hash("123321123aA", 10);
+
+  await prisma.user.create({
+    data: {
+      email,
+      password: hashedPassword,
+      confirmed_at: new Date(),
+    },
+  });
+
+  await prisma.user.create({
+    data: {
+      email: "unconfirmed@domain.test",
+      password: hashedPassword,
+      confirmation_token: generateToken(64),
+    },
+  });
 
   await Promise.all([
     prisma.admin.create({
