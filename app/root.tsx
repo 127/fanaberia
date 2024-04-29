@@ -18,6 +18,7 @@ import i18next from "./i18next.server";
 import { Divider, NextUIProvider } from "@nextui-org/react";
 import Header from "~/components/header";
 import Footer from "~/components/footer";
+import { authenticator } from "./services/auth.server";
 import MetaIconsLinks from "./components/MetaIconsLinks";
 import { getSession } from "./services/session.server";
 import { DARKMODE_DEFAULT } from "./routes/api.v1.darkmode";
@@ -41,19 +42,22 @@ export const handle = {
   i18n: "common",
 };
 export const loader = async ({ request }: LoaderFunctionArgs) => {
+  // console.log('loader root'); root loader is iinvoced on any child
+  const user = await authenticator.isAuthenticated(request);
   const session = await getSession(request.headers.get("Cookie"));
   const isDarkMode = (await session.get("isDarkMode")) ?? DARKMODE_DEFAULT;
   const locale =
     (await session.get("lng")) ?? (await i18next.getLocale(request));
   return json({
     locale,
+    user,
     ENV: { NODE_ENV: process.env.NODE_ENV },
     isDarkMode,
   });
 };
 
 export default function App() {
-  const { locale, ENV, isDarkMode } = useLoaderData<typeof loader>();
+  const { locale, user, ENV, isDarkMode } = useLoaderData<typeof loader>();
   useChangeLanguage(locale);
   return (
     <html lang={locale}>
@@ -68,7 +72,10 @@ export default function App() {
         }text-foreground bg-background min-h-screen`}
       >
         <NextUIProvider>
-          <Header isDarkMode={isDarkMode} />
+          <Header
+            userExists={user !== null ? true : false}
+            isDarkMode={isDarkMode}
+          />
           <main className="mx-auto w-full max-w-screen-xl p-4 py-6 lg:py-8">
             <Outlet />
           </main>

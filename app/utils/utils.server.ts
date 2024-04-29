@@ -169,3 +169,19 @@ export const fileExists = async (filePath: string): Promise<boolean> => {
     return false; // Файл не существует
   }
 };
+
+export const validateCaptcha = async (
+  recaptchaValue: FormDataEntryValue | null
+) => {
+  invariant(process.env.RECAPTCHA_SITE_KEY, "RECAPTCHA_SITE_KEY must be set");
+  const captchaResponse = await fetch(
+    "https://www.google.com/recaptcha/api/siteverify",
+    {
+      method: "POST",
+      headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      body: `secret=${process.env.RECAPTCHA_SECRET_KEY}&response=${recaptchaValue}`,
+    }
+  );
+
+  return await captchaResponse.json();
+};
