@@ -1,0 +1,110 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model Admin {
+  id       Int    @id @default(autoincrement())
+  email    String @unique
+  password String
+
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+  files      File[]
+
+  @@map(name: "admins")
+}
+
+model Post {
+  id          Int       @id @default(autoincrement())
+  slug        String    @unique
+  title       String?
+  keywords    String?
+  description String?
+  summary     String?
+  heading     String?
+  content     String
+  picture     String?
+  category_id Int?
+  category    Category? @relation(fields: [category_id], references: [id])
+
+  tags PostTag[]
+
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  @@map(name: "posts")
+}
+
+model Category {
+  id          Int     @id @default(autoincrement())
+  name        String
+  slug        String  @unique
+  title       String?
+  keywords    String?
+  description String?
+  heading     String?
+  posts       Post[]
+  locale      String  @default("en")
+
+  @@map(name: "categories")
+}
+
+model Tag {
+  id          Int       @id @default(autoincrement())
+  name        String
+  slug        String    @unique
+  title       String?
+  keywords    String?
+  description String?
+  heading     String?
+  posts       PostTag[]
+
+  @@map(name: "tags")
+}
+
+model PostTag {
+  post_id Int
+  tag_id  Int
+  post    Post @relation(fields: [post_id], references: [id])
+  tag     Tag  @relation(fields: [tag_id], references: [id])
+
+  @@id([post_id, tag_id])
+  @@map(name: "posts_tags")
+}
+
+model File {
+  id         Int      @id @default(autoincrement())
+  name       String
+  alt        String?
+  title      String?
+  path       String
+  mime_type  String
+  size       Int
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+  admin_id   Int?
+  admin      Admin?   @relation(fields: [admin_id], references: [id])
+
+  @@index([admin_id])
+  @@map(name: "files")
+}
+
+model Page {
+  id          Int    @id @default(autoincrement())
+  name        String
+  slug        String
+  title       String
+  keywords    String
+  description String
+  heading     String
+  content     String
+  locale      String @default("en")
+
+  @@unique([slug, locale])
+  @@map(name: "pages")
+}
