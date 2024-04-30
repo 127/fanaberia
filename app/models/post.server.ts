@@ -3,7 +3,7 @@ export type { Post } from "@prisma/client";
 
 const POSTS_PER_PAGE = 9;
 
-interface PostData {
+export interface PostData {
   slug: string;
   title?: string;
   keywords?: string;

@@ -2,7 +2,7 @@ import type { Page } from "@prisma/client";
 import { prisma } from "~/services/db.server";
 export type { Page } from "@prisma/client";
 
-interface PageData {
+export interface PageData {
   name: string;
   slug: string;
   title: string;

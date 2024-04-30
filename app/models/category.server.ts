@@ -2,7 +2,7 @@ import type { Category } from "@prisma/client";
 import { prisma } from "~/services/db.server";
 export type { Category } from "@prisma/client";
 
-interface CategoryData {
+export interface CategoryData {
   name: string;
   slug: string;
   title?: string;

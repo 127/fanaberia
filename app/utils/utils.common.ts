@@ -54,3 +54,6 @@ export interface IconProps extends React.SVGProps<SVGSVGElement> {
    */
   fill?: string;
 }
+
+export const capitalizeFirstLetter = (str: string): string =>
+  str.charAt(0).toUpperCase() + str.slice(1);
