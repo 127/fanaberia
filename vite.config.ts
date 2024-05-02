@@ -5,6 +5,13 @@ import tsconfigPaths from "vite-tsconfig-paths";
 
 installGlobals();
 
+//TODO: remove prisma alias when fixed
 export default defineConfig({
   plugins: [remix(), tsconfigPaths()],
+  resolve: {
+    alias: {
+      ".prisma/client/index-browser":
+        "./node_modules/.prisma/client/index-browser.js",
+    },
+  },
 });
