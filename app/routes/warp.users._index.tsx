@@ -8,7 +8,7 @@ import {
 } from "@nextui-org/react";
 import type { LoaderFunctionArgs } from "@remix-run/node";
 import { json } from "@remix-run/node";
-import { useLoaderData } from "@remix-run/react";
+import { Link, useLoaderData } from "@remix-run/react";
 import { getUsers } from "~/models/user.server";
 import { authenticateUserByRole } from "~/utils/utils.server";
 
@@ -50,9 +50,15 @@ export default function WarpUsersIndex() {
                 const value = user[key as keyof typeof user];
                 return (
                   <TableCell key={`cell-${key}`}>
-                    {key.endsWith("_at") && value
-                      ? new Date(value as string).toUTCString()
-                      : (value as string)}
+                    {key === "id" ? (
+                      <Link className="underline" to={`${value}/show`}>
+                        {value}
+                      </Link>
+                    ) : key.endsWith("_at") && value ? (
+                      new Date(value as string).toUTCString()
+                    ) : (
+                      (value as string)
+                    )}
                   </TableCell>
                 );
               })}

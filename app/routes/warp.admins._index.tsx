@@ -1,4 +1,5 @@
 import {
+  Button,
   Table,
   TableBody,
   TableCell,
@@ -8,14 +9,14 @@ import {
 } from "@nextui-org/react";
 import type { LoaderFunctionArgs } from "@remix-run/node";
 import { json } from "@remix-run/node";
-import { useLoaderData } from "@remix-run/react";
-import { getUsers } from "~/models/user.server";
+import { Link, useLoaderData } from "@remix-run/react";
+import { getAdmins } from "~/models/admin.server";
 import { authenticateUserByRole } from "~/utils/utils.server";
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
   await authenticateUserByRole(request, "admin");
-  const users = await getUsers();
-  return json({ users });
+  const admins = await getAdmins();
+  return json({ admins });
 };
 
 const filtered = [
@@ -25,16 +26,19 @@ const filtered = [
   "password",
 ];
 
-export default function WarpUsersIndex() {
-  const { users } = useLoaderData<typeof loader>();
-  const cols = Object.keys(users[0]).filter(
+export default function WarpAdminsIndex() {
+  const { admins } = useLoaderData<typeof loader>();
+  const cols = Object.keys(admins[0]).filter(
     (column) => !filtered.includes(column)
   );
 
   return (
     <div className="flex flex-col gap-4 mx-auto w-full">
-      <h1 className="font-bold text-lg">User list</h1>
-      <Table isStriped aria-label="User list">
+      <h1 className="font-bold text-lg">Admin list</h1>
+      <Button as={Link} color="primary" className="w-40" to="new">
+        Add new admin
+      </Button>
+      <Table isStriped aria-label="Admin list">
         <TableHeader>
           {cols.map((column) => (
             <TableColumn key={column}>
@@ -44,15 +48,21 @@ export default function WarpUsersIndex() {
           ))}
         </TableHeader>
         <TableBody>
-          {users.map((user) => (
-            <TableRow key={user.id}>
+          {admins.map((admin) => (
+            <TableRow key={admin.id}>
               {cols.map((key) => {
-                const value = user[key as keyof typeof user];
+                const value = admin[key as keyof typeof admin];
                 return (
                   <TableCell key={`cell-${key}`}>
-                    {key.endsWith("_at") && value
-                      ? new Date(value as string).toUTCString()
-                      : (value as string)}
+                    {key === "id" ? (
+                      <Link className="underline" to={`${value}/show`}>
+                        {value}
+                      </Link>
+                    ) : key.endsWith("_at") && value ? (
+                      new Date(value as string).toUTCString()
+                    ) : (
+                      (value as string)
+                    )}
                   </TableCell>
                 );
               })}

@@ -11,7 +11,7 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
 
 export const meta: MetaFunction = () => [{ title: "Warp" }];
 
-const links = ["posts", "categories", "users", "pages", "files"];
+const links = ["posts", "categories", "users", "pages", "files", "admins"];
 export default function WarpIndex() {
   // const loaderData = useLoaderData<typeof loader>()
   return (
