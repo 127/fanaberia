@@ -4,7 +4,7 @@ import type {
   MetaFunction,
 } from "@remix-run/node";
 import { json } from "@remix-run/node";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Form, useLoaderData, useSearchParams, Link } from "@remix-run/react";
 import { authenticator } from "~/services/auth.server";
 import { getSession, commitSession } from "~/services/session.server";
@@ -19,6 +19,7 @@ import {
   AUTHORIZED_USER_INDEX,
 } from "~/utils/utils.common";
 import i18next from "../i18next.server";
+import { UserData } from "~/models/user.server";
 
 export const action = async ({ request }: ActionFunctionArgs) =>
   await authenticator.authenticate("form", request, {
@@ -35,7 +36,7 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
   const t = await i18next.getFixedT(request, "common");
   const session = await getSession(request.headers.get("Cookie"));
   const msg = await session.get("sessionErrorKey");
-  const errors = msg && msg.message ? JSON.parse(msg.message) : false;
+  const res = msg && msg.message ? JSON.parse(msg.message) : false;
   session.unset("sessionErrorKey");
 
   return json(
@@ -45,7 +46,8 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
         description: t("meta.auth.sign-in.description"),
         keywords: t("meta.auth.sign-in.keywords"),
       },
-      errors,
+      errors: res.errors,
+      fields: res.fields,
     },
     {
       headers: {
@@ -72,6 +74,30 @@ export default function SignIn() {
   const { t } = useTranslation("common");
   const [isVisible, setIsVisible] = useState(false);
   const toggleVisibility = () => setIsVisible(!isVisible);
+
+  const [values, setValues] = useState<UserData>();
+  const [errors, setErrors] = useState(loaderData?.errors);
+
+  const handleChange = (name: string, value: string) => {
+    // console.log(name, value);
+    setValues((prevValues) => ({ ...(prevValues as UserData), [name]: value }));
+
+    if (errors?.[name as keyof typeof errors]) {
+      setErrors((prevErrors: { [key: string]: string }) => ({
+        ...prevErrors,
+        [name]: undefined,
+      }));
+    }
+  };
+
+  useEffect(() => {
+    if (loaderData?.errors) {
+      setErrors(loaderData.errors);
+    }
+    if (loaderData?.fields) {
+      setValues(loaderData.fields);
+    }
+  }, [loaderData]);
 
   return (
     <div className="flex flex-col gap-4 mx-auto w-full md:w-2/3 lg:w-1/4">
@@ -100,8 +126,9 @@ export default function SignIn() {
           </Card>
         )}
 
-        {loaderData.errors.common &&
-          Object.entries(loaderData.errors).map(([key, value]) => (
+        {errors &&
+          errors.common &&
+          Object.entries(errors).map(([key, value]) => (
             <Card className="flex gap-4 bg-warning-400" key={"error-" + key}>
               <CardBody>{t(value as string)}</CardBody>
             </Card>
@@ -114,9 +141,14 @@ export default function SignIn() {
           name="email"
           variant="bordered"
           autoComplete="username email"
-          {...(loaderData.errors.email
-            ? { isInvalid: true, errorMessage: t(loaderData.errors.email) }
-            : { isInvalid: false, errorMessage: null })}
+          value={(values?.["email" as keyof typeof values] as string) ?? ""}
+          onChange={(e) => handleChange("email", e.target.value)}
+          {...(errors && errors["email" as keyof typeof errors]
+            ? {
+                isInvalid: true,
+                errorMessage: t(errors["email" as keyof typeof errors]),
+              }
+            : {})}
         />
         <Input
           isRequired
@@ -138,9 +170,14 @@ export default function SignIn() {
             </button>
           }
           type={isVisible ? "text" : "password"}
-          {...(loaderData.errors.password
-            ? { isInvalid: true, errorMessage: t(loaderData.errors.password) }
-            : { isInvalid: false, errorMessage: null })}
+          value={(values?.["password" as keyof typeof values] as string) ?? ""}
+          onChange={(e) => handleChange("password", e.target.value)}
+          {...(errors && errors["password" as keyof typeof errors]
+            ? {
+                isInvalid: true,
+                errorMessage: t(errors["password" as keyof typeof errors]),
+              }
+            : {})}
         />
         <Button type="submit" color="primary" size="lg">
           {t("sign.in.label")}

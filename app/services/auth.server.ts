@@ -7,22 +7,10 @@ import { validateFormUser, findOrCreateOauthUser } from "~/models/user.server";
 import { validateFormAdmin } from "~/models/admin.server";
 import { GoogleStrategy, SocialsProvider } from "remix-auth-socials";
 import userSignInValidationSchema from "~/validators/userSignInValidationSchema";
-import { ValidationError } from "yup";
-
-// invariant(process.env.APPLE_SERVICE_ID, "APPLE_SERVICE_ID must be set");
-// invariant(process.env.APPLE_TEAM_ID, "APPLE_TEAM_ID must be set");
-// invariant(process.env.APPLE_KEY_ID, "APPLE_TEAM_ID must be set");
-// invariant(process.env.APPLE_K8_PATH, "APPLE_K8_PATH path must be set");
-// invariant(process.env.APPLE_CLIENT_ID, "APPLE_CLIENT_ID path must be set");
+import * as yup from "yup";
 
 invariant(process.env.GOOGLE_CLIENT_ID, "FACEBOOK_CLIENT_ID must be set");
 invariant(process.env.GOOGLE_CLIENT_SECRET, "GOOGLE_CLIENT_SECRET must be set");
-
-// invariant(process.env.FACEBOOK_CLIENT_ID, "FACEBOOK_CLIENT_ID must be set");
-// invariant(
-//   process.env.FACEBOOK_CLIENT_SECRET,
-//   "FACEBOOK_CLIENT_SECRET must be set"
-// );
 
 export const authenticator = new Authenticator<User | Admin>(sessionStorage, {
   sessionErrorKey: "sessionErrorKey",
@@ -32,40 +20,44 @@ authenticator.use(
   new FormStrategy(async ({ form, context }) => {
     if (!context) {
       throw new AuthorizationError(
-        JSON.stringify({ common: "sing.in.context.ip" })
+        JSON.stringify({ errors: { common: "sing.in.context.ip" } })
       );
     }
     const formObj = Object.fromEntries(form);
-    const validationResult = await userSignInValidationSchema()
-      .validate(formObj, { abortEarly: false })
-      .catch((err) => {
-        const errors: Record<string, string> = {};
-        if (err instanceof ValidationError && err.inner) {
-          err.inner.forEach((error: ValidationError) => {
-            const path = error.path || "unknown";
-            if (!errors[path]) {
-              errors[path] = error.message;
-            }
-          });
-        }
-        return errors;
-      });
-    // console.log('validationResult',validationResult, formObj, formObj === validationResult);
-    if (validationResult != formObj) {
-      throw new AuthorizationError(JSON.stringify(validationResult));
-    }
-
     const email = form.get("email") as string;
     const password = form.get("password") as string;
+    try {
+      await userSignInValidationSchema.validate(formObj, { abortEarly: false });
+    } catch (err) {
+      if (err instanceof yup.ValidationError) {
+        const errors = err.inner.reduce(
+          (acc, error) => ({
+            ...acc,
+            [String(error.path)]: error.message,
+          }),
+          {}
+        );
+        throw new AuthorizationError(
+          JSON.stringify({ errors, fields: { email, password } })
+        );
+      }
+    }
+
     const user = await validateFormUser(email, password, context.ip as string);
     // console.log('user', user);
     if (!user) {
       throw new AuthorizationError(
-        JSON.stringify({ common: "sing.in.error.common" })
+        JSON.stringify({
+          errors: { common: "sing.in.error.common" },
+          fields: { email, password },
+        })
       );
     } else if (!user.confirmed_at) {
       throw new AuthorizationError(
-        JSON.stringify({ common: "sing.in.error.confirm" })
+        JSON.stringify({
+          errors: { common: "sing.in.error.confirm" },
+          fields: { email, password },
+        })
       );
     } else {
       return await Promise.resolve({ ...(user as User) });
@@ -84,7 +76,7 @@ authenticator.use(
     async ({ profile, context }) => {
       if (!context) {
         throw new AuthorizationError(
-          JSON.stringify({ common: "sing.in.context.ip" })
+          JSON.stringify({ errors: { common: "sing.in.context.ip" } })
         );
       }
       // console.log('profile', profile);
@@ -96,7 +88,7 @@ authenticator.use(
       // console.log('user', user);
       if (!user) {
         throw new AuthorizationError(
-          JSON.stringify({ common: "sing.in.error.social" })
+          JSON.stringify({ errors: { common: "sing.in.error.social" } })
         );
       }
       return await Promise.resolve({ ...user });
@@ -105,67 +97,34 @@ authenticator.use(
   "google"
 );
 
-// authenticator.use(
-//   new FacebookStrategy(
-//     {
-//       clientID: process.env.FACEBOOK_CLIENT_ID,
-//       clientSecret: process.env.FACEBOOK_CLIENT_SECRET,
-//       callbackURL: `/auth/${SocialsProvider.FACEBOOK}/callback`,
-//     },
-//     async ({ profile, context }) => {
-//       if (!context) {
-//         throw new AuthorizationError(
-//           JSON.stringify({ common: "sing.in.context.ip" })
-//         );
-//       }
-//       // console.log(profile);
-//       // const email = profile._json.email;
-//       const user = await findOrCreateOauthUser(
-//         profile._json.email,
-//         "fb",
-//         context.ip as string
-//       );
-//       // console.log('user', user);
-//       if (!user) {
-//         throw new AuthorizationError(
-//           JSON.stringify({ common: "sing.in.error.social" })
-//         );
-//       }
-//       return await Promise.resolve({ ...user });
-//     }
-//   ),
-//   "facebook"
-// );
-
 authenticator.use(
   new FormStrategy(async ({ form }) => {
     const formObj = Object.fromEntries(form);
-    const validationResult = await userSignInValidationSchema()
-      .validate(formObj, { abortEarly: false })
-      .catch((err) => {
-        const errors: Record<string, string> = {};
-        if (err instanceof ValidationError && err.inner) {
-          err.inner.forEach((error: ValidationError) => {
-            const path = error.path || "unknown";
-            if (!errors[path]) {
-              errors[path] = error.message;
-            }
-          });
-        }
-        return errors;
-      });
-    // console.log('validationResult',validationResult, formObj, formObj === validationResult);
-    if (validationResult != formObj) {
-      throw new AuthorizationError(JSON.stringify(validationResult));
-    }
 
     const email = form.get("email") as string;
     const password = form.get("password") as string;
+    try {
+      await userSignInValidationSchema.validate(formObj, { abortEarly: false });
+    } catch (err) {
+      if (err instanceof yup.ValidationError) {
+        const errors = err.inner.reduce(
+          (acc, error) => ({
+            ...acc,
+            [String(error.path)]: error.message,
+          }),
+          {}
+        );
+        throw new AuthorizationError(
+          JSON.stringify({ errors, fields: { email, password } })
+        );
+      }
+    }
+
     const user = await validateFormAdmin(email, password);
     // console.log('admin', admin);
     if (!user) {
       throw new AuthorizationError(
-        JSON.stringify({ common: "sing.in.error.common" })
+        JSON.stringify({ errors: { common: "sing.in.error.common" } })
       );
     }
     return await Promise.resolve({ ...(user as Admin) });

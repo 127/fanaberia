@@ -5,6 +5,12 @@ import { generateToken } from "../utils/utils.server";
 
 export type { User } from "@prisma/client";
 
+export interface UserData {
+  email: string;
+  password?: string;
+  passwordConfirmation?: string;
+}
+
 export async function userExists(email: User["email"]) {
   return prisma.user.count({ where: { email } }).then(Boolean);
 }
