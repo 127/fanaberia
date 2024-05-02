@@ -1,4 +1,3 @@
-// app/routes/admin/courses/$courseId/edit.tsx
 import { json, redirect } from "@remix-run/node";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
 import { useLoaderData, Link, Form, useActionData } from "@remix-run/react";

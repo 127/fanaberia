@@ -90,7 +90,7 @@ const Header: React.FC<{ userExists: boolean; isDarkMode: boolean }> = ({
               className="text-primary dark:text-warning-500"
               to={AUTHORIZED_USER_INDEX}
             >
-              {t("nav.label.courses.own")}
+              Some menu
             </Link>
           </NavbarItem>
         )}
@@ -171,24 +171,14 @@ const Header: React.FC<{ userExists: boolean; isDarkMode: boolean }> = ({
           </span>
         </NavbarMenuItem>
         <Divider />
-        {userExists && (
-          <NavbarMenuItem>
-            <Link
-              color="foreground"
-              to={AUTHORIZED_USER_INDEX}
-              onClick={toggleMenu}
-            >
-              {t("nav.label.courses.own")}
-            </Link>
-          </NavbarMenuItem>
-        )}
+        {userExists && <NavbarMenuItem>Some menu</NavbarMenuItem>}
         {/* 
         <NavbarMenuItem
           key="mnu-home"
           className=" flex flex-row justify-between"
         >
           <Link color="foreground" to={homeUrl} onClick={toggleMenu}>
-            {t("nav.label.courses")}
+            Some menu
           </Link>
           <span>
             <DarkModeSwitcher />

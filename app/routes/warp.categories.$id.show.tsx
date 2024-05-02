@@ -1,4 +1,3 @@
-// app/routes/warp.courses.$id.tsx
 import { Button } from "@nextui-org/react";
 import { json, LoaderFunctionArgs } from "@remix-run/node";
 import { Link, useLoaderData } from "@remix-run/react";

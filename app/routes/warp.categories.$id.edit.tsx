@@ -1,4 +1,3 @@
-// app/routes/admin/courses/$courseId/edit.tsx
 import { json, redirect } from "@remix-run/node";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
 import { useLoaderData, Link, Form, useActionData } from "@remix-run/react";
@@ -74,7 +73,7 @@ export const action = async ({ request, params }: ActionFunctionArgs) => {
 
 const inputs = "name,slug,title,keywords,description,heading".split(",");
 
-export default function WarpCoursesEdit() {
+export default function WarpCategoryEdit() {
   const { category, locales } = useLoaderData<typeof loader>();
   const actionData = useActionData<typeof action>();
   const [values, setValues] = useState<CategoryData>(category as CategoryData);
