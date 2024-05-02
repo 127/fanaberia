@@ -74,10 +74,12 @@
   "footer.label.legal": "Legal",
   "footer.label.terms": "Terms & Conditions",
   "footer.label.privacy": "Privacy Policy",
+  "footer.label.engine": "Powered by ",
   "system.hour.short": "h",
   "system.minute.short": "m",
   "system.loading": "Loading…",
   "system.error.404": "Page not found",
   "system.error.home": "Return to home page",
-  "system.error.coming.soon": "Comming soon…"
+  "system.error.coming.soon": "Comming soon…",
+  "copyright": "All Rights Reserved."
 }

@@ -97,9 +97,20 @@ const Footer: React.FC<{ isDarkMode: boolean }> = ({ isDarkMode }) => {
           </div>
         </div>
         <hr className="my-6 border-gray-200 sm:mx-auto dark:border-gray-700 lg:my-8" />
-        <div className="sm:flex sm:items-center sm:justify-between">
-          <span className="text-sm text-gray-500 sm:text-center dark:text-gray-400">
-            © 2023 {t("brand")}. {t("copyright")}
+        <div className="sm:flex sm:items-center sm:justify-between text-sm text-gray-500 sm:text-center dark:text-gray-400">
+          <span>
+            © 2023—{new Date().getFullYear()} {t("copyright")}
+          </span>
+          <span>
+            {t("footer.label.engine")}
+            <Link
+              to="https://fanaberia.dev"
+              target="_blank"
+              rel="noreferrer"
+              className="underline"
+            >
+              {t("brand")}
+            </Link>
           </span>
         </div>
       </div>
