@@ -79,7 +79,7 @@ export default function App() {
           <main className="mx-auto w-full max-w-screen-xl p-4 py-6 lg:py-8">
             <Outlet />
           </main>
-          <Footer />
+          <Footer isDarkMode={isDarkMode} />
           <ScrollRestoration />
           {/* <script
           dangerouslySetInnerHTML={{

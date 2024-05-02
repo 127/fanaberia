@@ -52,7 +52,12 @@ const Header: React.FC<{ userExists: boolean; isDarkMode: boolean }> = ({
       <NavbarContent className="md:hidden pr-3" justify="center">
         <NavbarBrand>
           <Link to="/" className="flex flex-row text-foreground items-center">
-            <Logo width={30} height={30} className="me-2 text-foreground" />
+            <Logo
+              width={30}
+              height={30}
+              fill={isDarkMode ? "#000" : "#fff"}
+              className="me-2 bg-black dark:bg-white"
+            />
             <span className="font-bold text-inherit">{t("brand")}</span>
           </Link>
         </NavbarBrand>
@@ -64,7 +69,12 @@ const Header: React.FC<{ userExists: boolean; isDarkMode: boolean }> = ({
             to={UNAUTHORIZED_INDEX}
             className="flex flex-row text-foreground items-center"
           >
-            <Logo width={30} height={30} className="me-2" />
+            <Logo
+              width={30}
+              height={30}
+              fill={isDarkMode ? "#000" : "#fff"}
+              className="me-2 bg-black dark:bg-white"
+            />
             <span className="font-bold text-inherit">{t("brand")}</span>
           </Link>
         </NavbarBrand>

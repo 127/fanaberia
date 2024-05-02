@@ -4,7 +4,7 @@ import { useTranslation } from "react-i18next";
 import { Logo } from "~/assets/Logo";
 import { UNAUTHORIZED_INDEX } from "~/utils/utils.common";
 
-const Footer: React.FC = () => {
+const Footer: React.FC<{ isDarkMode: boolean }> = ({ isDarkMode }) => {
   const { t, i18n } = useTranslation("common");
   return (
     <footer>
@@ -13,7 +13,10 @@ const Footer: React.FC = () => {
         <div className="md:flex md:justify-between">
           <div className="mb-6 md:mb-0">
             <Link to={UNAUTHORIZED_INDEX} className="flex items-center">
-              <Logo className="me-2" />
+              <Logo
+                fill={isDarkMode ? "#000" : "#fff"}
+                className="me-2 bg-black dark:bg-white"
+              />
               <span className="self-center text-sm font-semibold whitespace-nowrap dark:text-white">
                 {t("brand")}
               </span>
