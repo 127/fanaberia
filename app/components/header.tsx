@@ -118,7 +118,7 @@ const Header: React.FC<{ userExists: boolean; isDarkMode: boolean }> = ({
                 </Button>
               </DropdownTrigger>
               <DropdownMenu aria-label="Static Actions">
-                <DropdownItem key="theme" className="text-center">
+                <DropdownItem key="theme" className="text-center" isReadOnly>
                   <DarkModeSwitcher isDarkMode={isDarkMode} />
                 </DropdownItem>
                 <DropdownItem key="logout">
