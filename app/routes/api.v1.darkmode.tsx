@@ -5,7 +5,7 @@ export const DARKMODE_DEFAULT = true;
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
   const session = await getSession(request.headers.get("Cookie"));
-  const isDarkMode = await session.get("isDarkMode") ?? DARKMODE_DEFAULT;
+  const isDarkMode = (await session.get("isDarkMode")) ?? DARKMODE_DEFAULT;
   return json({ isDarkMode });
 };
 

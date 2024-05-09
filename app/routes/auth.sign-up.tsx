@@ -3,7 +3,6 @@ import type {
   LoaderFunctionArgs,
   MetaFunction,
 } from "@remix-run/node";
-import type { ResponseError } from "../utils/utils.server";
 import invariant from "tiny-invariant";
 import { json, redirect } from "@remix-run/node";
 import {
@@ -13,7 +12,7 @@ import {
 import { Form, Link, useActionData, useLoaderData } from "@remix-run/react";
 // import { useEffect } from "react";
 import { authenticator } from "~/services/auth.server";
-import { createUser, userExists } from "~/models/user.server";
+import { UserData, createUser, userExists } from "~/models/user.server";
 import userSignUpValidationSchema from "~/validators/userSignUpValidationSchema";
 import { Button, Checkbox, Card, CardBody, Input } from "@nextui-org/react";
 import { Trans, useTranslation } from "react-i18next";
@@ -29,8 +28,9 @@ import {
 } from "~/utils/utils.common";
 import { generateEmailHtml } from "~/templates/generateEmailHtml";
 import { OauthLinksPanel } from "~/components/AuthSocials";
-import { ValidationError } from "yup";
+import * as yup from "yup";
 import { getSession, commitSession } from "~/services/session.server";
+import { useState, useEffect } from "react";
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
   invariant(process.env.RECAPTCHA_SITE_KEY, "RECAPTCHA_SITE_KEY must be set");
@@ -57,7 +57,13 @@ export const action = async ({ request }: ActionFunctionArgs) => {
 
   const session = await getSession(request.headers.get("Cookie"));
   let _r = await session.get("_r");
-  // console.log('init session 0' ,_r, session.has("_r"));
+
+  const fields: UserData = {
+    email: formData.get("email") as string,
+    password: formData.get("password") as string,
+    passwordConfirmation: formData.get("passwordConfirmation") as string,
+  };
+
   if (typeof _r === "undefined" || _r === false) {
     // console.log('init session 1');
     const recaptchaValue = formData.get("g-recaptcha-response");
@@ -70,8 +76,8 @@ export const action = async ({ request }: ActionFunctionArgs) => {
       // console.log('init session 2');
       session.set("_r", false);
       // console.log('init session 3', _r);
-      return json<ResponseError>(
-        { errors: { message: t("sign.up.error.recaptcha") } },
+      return json(
+        { errors: { message: t("sign.up.error.recaptcha") }, fields },
         {
           status: 400,
           headers: {
@@ -82,35 +88,36 @@ export const action = async ({ request }: ActionFunctionArgs) => {
     }
   }
 
-  const formObj = Object.fromEntries(formData);
-  const validationResult = await userSignUpValidationSchema()
-    .validate(formObj, { abortEarly: false })
-    .catch((err) => {
-      const errors: Record<string, string> = {};
-      if (err instanceof ValidationError && err.inner) {
-        err.inner.forEach((error: ValidationError) => {
-          const path = error.path || "unknown";
-          if (!errors[path]) {
-            errors[path] = error.message;
-          }
-        });
-      }
-      return errors;
+  try {
+    await userSignUpValidationSchema.validate(fields, {
+      abortEarly: false,
     });
-  // console.log('validationResult',validationResult, formObj, formObj === validationResult);
-  if (validationResult !== formObj) {
-    return json<ResponseError>({ errors: validationResult } as ResponseError, {
-      status: 400,
-      headers: {
-        "Set-Cookie": await commitSession(session),
-      },
-    });
+  } catch (err) {
+    if (err instanceof yup.ValidationError) {
+      const errors = err.inner.reduce(
+        (acc, error) => ({
+          ...acc,
+          [String(error.path)]: error.message,
+        }),
+        {}
+      );
+      return json(
+        { errors, fields },
+        {
+          status: 400,
+          headers: {
+            "Set-Cookie": await commitSession(session),
+          },
+        }
+      );
+    }
+    throw err;
   }
-  const email = formData.get("email") as string;
-  const isUser: boolean = await userExists(email);
+
+  const isUser: boolean = await userExists(fields.email);
   if (isUser) {
-    return json<ResponseError>(
-      { errors: { message: t("sign.up.error.user.exists") } },
+    return json(
+      { errors: { message: t("sign.up.error.user.exists") }, fields },
       {
         status: 400,
         headers: {
@@ -120,12 +127,10 @@ export const action = async ({ request }: ActionFunctionArgs) => {
     );
   }
 
-  const password = formData.get("password") as string;
-  const user = await createUser(email, password, ip);
-  // console.log(user);
+  const user = await createUser(fields.email, fields.password as string, ip);
   if (!user) {
-    return json<ResponseError>(
-      { errors: { message: t("sign.up.error.user.failed") } },
+    return json(
+      { errors: { message: t("sign.up.error.user.failed") }, fields },
       {
         status: 400,
         headers: {
@@ -177,6 +182,30 @@ export default function SignUp() {
   const loaderData = useLoaderData<typeof loader>();
   const { i18n, t } = useTranslation("common");
 
+  const [values, setValues] = useState<UserData>();
+  const [errors, setErrors] = useState(actionData?.errors);
+
+  const handleChange = (name: string, value: string) => {
+    // console.log(name, value);
+    setValues((prevValues) => ({ ...(prevValues as UserData), [name]: value }));
+
+    if (errors?.[name as keyof typeof errors]) {
+      setErrors((prevErrors: { [key: string]: string }) => ({
+        ...prevErrors,
+        [name]: undefined,
+      }));
+    }
+  };
+
+  useEffect(() => {
+    if (actionData?.errors) {
+      setErrors(actionData.errors);
+    }
+    if (actionData?.fields) {
+      setValues(actionData.fields);
+    }
+  }, [actionData]);
+
   return (
     <div className="flex flex-col gap-4 mx-auto w-full md:w-2/3 lg:w-1/4">
       <h1 className="flex w-full flex-col">{t("sign.up.with.label")}</h1>
@@ -188,8 +217,9 @@ export default function SignUp() {
         </span>
       </div>
       <Form method="post" className="flex w-full flex-col mb-4 gap-4">
-        {actionData?.errors?.message &&
-          Object.entries(actionData.errors).map(([key, value]) => (
+        {errors &&
+          errors["message" as keyof typeof errors] &&
+          Object.entries(errors).map(([key, value]) => (
             <Card className="flex gap-4 bg-warning-400" key={"error-" + key}>
               <CardBody>{value as string}</CardBody>
             </Card>
@@ -202,9 +232,14 @@ export default function SignUp() {
           name="email"
           variant="bordered"
           autoComplete="username email"
-          {...(actionData?.errors?.email
-            ? { isInvalid: true, errorMessage: t(actionData.errors.email) }
-            : { isInvalid: false, errorMessage: null })}
+          value={(values?.["email" as keyof typeof values] as string) ?? ""}
+          onChange={(e) => handleChange("email", e.target.value)}
+          {...(errors && errors["email" as keyof typeof errors]
+            ? {
+                isInvalid: true,
+                errorMessage: t(errors["email" as keyof typeof errors]),
+              }
+            : {})}
         />
         <Input
           isRequired
@@ -213,9 +248,14 @@ export default function SignUp() {
           type="password"
           variant="bordered"
           autoComplete="new-password"
-          {...(actionData?.errors?.password
-            ? { isInvalid: true, errorMessage: t(actionData.errors.password) }
-            : { isInvalid: false, errorMessage: null })}
+          value={(values?.["password" as keyof typeof values] as string) ?? ""}
+          onChange={(e) => handleChange("password", e.target.value)}
+          {...(errors && errors["password" as keyof typeof errors]
+            ? {
+                isInvalid: true,
+                errorMessage: t(errors["password" as keyof typeof errors]),
+              }
+            : {})}
         />
         <Input
           isRequired
@@ -224,18 +264,28 @@ export default function SignUp() {
           name="passwordConfirmation"
           variant="bordered"
           autoComplete="new-password"
-          {...(actionData?.errors?.passwordConfirmation
+          value={
+            (values?.[
+              "passwordConfirmation" as keyof typeof values
+            ] as string) ?? ""
+          }
+          onChange={(e) => handleChange("passwordConfirmation", e.target.value)}
+          {...(errors && errors["passwordConfirmation" as keyof typeof errors]
             ? {
                 isInvalid: true,
-                errorMessage: t(actionData.errors.passwordConfirmation),
+                errorMessage: t(
+                  errors["passwordConfirmation" as keyof typeof errors]
+                ),
               }
-            : { isInvalid: false, errorMessage: null })}
+            : {})}
         />
         <Checkbox
           isRequired
           name="terms"
-          value={actionData?.errors?.terms ? "" : "checked"}
-          {...(actionData?.errors?.terms
+          value={
+            errors && errors["terms" as keyof typeof errors] ? "" : "checked"
+          }
+          {...(errors?.["terms" as keyof typeof errors]
             ? { isInvalid: true }
             : { isInvalid: false })}
         >

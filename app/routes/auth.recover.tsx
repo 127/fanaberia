@@ -12,7 +12,6 @@ import {
   setPasswordRecoveryToken,
 } from "~/models/user.server";
 import { sendEmail } from "../utils/utils.server";
-import { ValidationError } from "yup";
 import i18next from "../i18next.server";
 import passwordRecoveryValidationSchema from "~/validators/passwordRecoveryValidationSchema";
 import { generateEmailHtml } from "~/templates/generateEmailHtml";
@@ -21,23 +20,13 @@ export const action = async ({ request }: ActionFunctionArgs) => {
   const t = await i18next.getFixedT(request, "common");
   const formData = await request.formData();
   const formObj = Object.fromEntries(formData);
-  const validationResult = await passwordRecoveryValidationSchema()
-    .validate(formObj, { abortEarly: false })
-    .catch((err) => {
-      const errors: Record<string, string> = {};
-      if (err instanceof ValidationError && err.inner) {
-        err.inner.forEach((error: ValidationError) => {
-          const path = error.path || "unknown";
-          if (!errors[path]) {
-            errors[path] = error.message;
-          }
-        });
-      }
-      return errors;
-    });
 
-  // on errors always return success
-  if (validationResult !== formObj) {
+  try {
+    await passwordRecoveryValidationSchema.validate(formObj, {
+      abortEarly: false,
+    });
+  } catch (err) {
+    // on error always return success to prevent email enumeration
     return json({ success: true });
   }
 

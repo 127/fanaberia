@@ -3,24 +3,46 @@ import type {
   MetaFunction,
   LoaderFunctionArgs,
 } from "@remix-run/node";
-import { type ResponseError } from "~/utils/utils.server";
 import { AUTHENTICATION_FAILURE_PATHS } from "~/utils/utils.common";
 import { json, redirect } from "@remix-run/node";
-import { Form, useActionData, useLoaderData } from "@remix-run/react";
+import { Form, useActionData } from "@remix-run/react";
 import { Button, Card, CardBody, Input } from "@nextui-org/react";
 import { useTranslation } from "react-i18next";
 import { resetPassword, userIsRecovering } from "~/models/user.server";
-import { ValidationError } from "yup";
+import * as yup from "yup";
 import i18next from "~/i18next.server";
 import passwordRecoveredValidationSchema from "~/validators/passwordRecoveredValidationSchema";
+import { useState, useEffect } from "react";
 
-async function checkToken(request: Request, meta?: ResponseError["meta"]) {
+type ResetPasswordResponse = {
+  meta?: {
+    title?: string;
+    description?: string;
+    keywords?: string;
+  };
+  errors?: {
+    message?: string;
+    email?: string;
+    password?: string;
+    passwordConfirmation?: string;
+    terms?: string;
+  };
+  fields?: {
+    password?: string;
+    passwordConfirmation?: string;
+  };
+};
+
+async function checkToken(
+  request: Request,
+  meta?: ResetPasswordResponse["meta"]
+) {
   const t = await i18next.getFixedT(request, "common");
   const url = new URL(request.url);
   const token = url.searchParams.get("token");
   let err = null;
   if (token === null || !(await userIsRecovering(token))) {
-    err = json<ResponseError>(
+    err = json<ResetPasswordResponse>(
       { meta, errors: { message: t("recover.reset.impossible") } },
       { status: 400 }
     );
@@ -37,9 +59,7 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
   };
   const { err } = await checkToken(request, meta);
   if (err !== null) return err;
-  return json<ResponseError>({
-    meta,
-  });
+  return json<ResetPasswordResponse>({ meta });
 };
 
 export const action = async ({ request }: ActionFunctionArgs) => {
@@ -47,31 +67,29 @@ export const action = async ({ request }: ActionFunctionArgs) => {
   if (err !== null) return err;
 
   const formData = await request.formData();
-  const formObj = Object.fromEntries(formData);
-  const validationResult = await passwordRecoveredValidationSchema()
-    .validate(formObj, { abortEarly: false })
-    .catch((err) => {
-      const errors: Record<string, string> = {};
-      if (err instanceof ValidationError && err.inner) {
-        err.inner.forEach((error: ValidationError) => {
-          const path = error.path || "unknown";
-          if (!errors[path]) {
-            errors[path] = error.message;
-          }
-        });
-      }
-      return errors;
-    });
+  const fields: ResetPasswordResponse["fields"] = {
+    password: formData.get("password") as string,
+    passwordConfirmation: formData.get("passwordConfirmation") as string,
+  };
 
-  // on errors return success
-  if (validationResult !== formObj) {
-    // console.log(validationResult);
-    return json<ResponseError>({ errors: validationResult } as ResponseError, {
-      status: 400,
+  try {
+    await passwordRecoveredValidationSchema.validate(fields, {
+      abortEarly: false,
     });
+  } catch (err) {
+    if (err instanceof yup.ValidationError) {
+      const errors = err.inner.reduce(
+        (acc, error) => ({
+          ...acc,
+          [String(error.path)]: error.message,
+        }),
+        {}
+      );
+      return json({ errors, fields }, 400);
+    }
+    throw err;
   }
-  const password = formData.get("password") as string;
-  await resetPassword(token as string, password);
+  await resetPassword(token as string, fields.password as string);
   return redirect(`${AUTHENTICATION_FAILURE_PATHS.user}?recovered=true`);
 };
 
@@ -85,15 +103,40 @@ export const meta: MetaFunction<typeof loader> = ({ data }) => {
 
 export default function Reset() {
   const actionData = useActionData<typeof action>();
-  const loaderData = useLoaderData<typeof loader>();
   const { t } = useTranslation("common");
+  const [values, setValues] = useState<ResetPasswordResponse["fields"]>();
+  const [errors, setErrors] = useState(actionData?.errors);
+
+  const handleChange = (name: string, value: string) => {
+    // console.log(name, value);
+    setValues((prevValues) => ({
+      ...(prevValues as ResetPasswordResponse["fields"]),
+      [name]: value,
+    }));
+
+    if (errors?.[name as keyof typeof errors]) {
+      setErrors((prevErrors: { [key: string]: string }) => ({
+        ...prevErrors,
+        [name]: undefined,
+      }));
+    }
+  };
+
+  useEffect(() => {
+    if (actionData?.errors) {
+      setErrors(actionData.errors);
+    }
+    if (actionData?.fields) {
+      setValues(actionData.fields);
+    }
+  }, [actionData]);
 
   return (
     <div className="flex flex-col gap-4 mx-auto w-full md:w-2/3 lg:w-1/4">
       <h1 className="flex w-full flex-col">{t("recover.heading")}</h1>
-      {loaderData?.errors?.message ? (
+      {errors && errors["message" as keyof typeof values] ? (
         <Card className="flex gap-4 bg-success-200" key="recover-inited">
-          <CardBody>{loaderData.errors.message}</CardBody>
+          <CardBody>{errors["message" as keyof typeof values]}</CardBody>
         </Card>
       ) : (
         <Form method="post" className="flex w-full flex-col mb-4 gap-4">
@@ -104,12 +147,14 @@ export default function Reset() {
             type="password"
             variant="bordered"
             autoComplete="new-password"
-            {...(actionData?.errors?.password
+            value={values?.["password" as keyof typeof values] as string}
+            onChange={(e) => handleChange("password", e.target.value)}
+            {...(errors && errors["password" as keyof typeof errors]
               ? {
                   isInvalid: true,
-                  errorMessage: t(actionData.errors.password),
+                  errorMessage: errors["password" as keyof typeof errors],
                 }
-              : { isInvalid: false, errorMessage: null })}
+              : {})}
           />
           <Input
             isRequired
@@ -118,12 +163,19 @@ export default function Reset() {
             name="passwordConfirmation"
             variant="bordered"
             autoComplete="new-password"
-            {...(actionData?.errors?.passwordConfirmation
+            value={
+              values?.["passwordConfirmation" as keyof typeof values] as string
+            }
+            onChange={(e) =>
+              handleChange("passwordConfirmation", e.target.value)
+            }
+            {...(errors && errors["passwordConfirmation" as keyof typeof errors]
               ? {
                   isInvalid: true,
-                  errorMessage: t(actionData.errors.passwordConfirmation),
+                  errorMessage:
+                    errors["passwordConfirmation" as keyof typeof errors],
                 }
-              : { isInvalid: false, errorMessage: null })}
+              : {})}
           />
           <Button type="submit" color="primary" size="lg">
             {t("recover.label")}

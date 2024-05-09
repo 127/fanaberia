@@ -1,5 +1,18 @@
-import { ActionFunctionArgs, redirect } from "@remix-run/node";
+import {
+  ActionFunctionArgs,
+  // LoaderFunctionArgs,
+  // json,
+  redirect,
+} from "@remix-run/node";
 import { commitSession, getSession } from "~/services/session.server";
+// import i18next from "~/i18next.server";
+
+// export const loader = async ({ request }: LoaderFunctionArgs) => {
+//   const session = await getSession(request.headers.get("Cookie"));
+//   const locale =
+//     (await session.get("lng")) ?? (await i18next.getLocale(request));
+//   return json({ locale });
+// };
 
 export const action = async ({ request }: ActionFunctionArgs) => {
   const session = await getSession(request.headers.get("Cookie"));
@@ -24,4 +37,12 @@ export const action = async ({ request }: ActionFunctionArgs) => {
       "Set-Cookie": await commitSession(session),
     },
   });
+  // return json(
+  //   { locale },
+  //   {
+  //     headers: {
+  //       "Set-Cookie": await commitSession(session),
+  //     },
+  //   }
+  // );
 };
