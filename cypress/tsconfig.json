@@ -1,0 +1,16 @@
+{
+  "compilerOptions": {
+    "target": "es5",
+    "lib": ["es5", "dom"],
+    "types": ["cypress", "node"]
+  },
+  "include": ["**/*.ts"]
+}
+// // added support to types and reference file index.d.ts
+// {
+//   "compilerOptions": {
+//     "allowJs": true,
+//     "types": ["cypress", "support"]
+//   },
+//   "include": ["**/*.*"]
+// }

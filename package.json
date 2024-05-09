@@ -9,7 +9,8 @@
     "lint": "eslint --ignore-path .gitignore --cache --cache-location ./node_modules/.cache/eslint .",
     "start": "remix-serve ./build/server/index.js",
     "typecheck": "tsc",
-    "setup": "prisma generate && prisma migrate deploy && prisma db seed"
+    "setup": "prisma generate && prisma migrate deploy && prisma db seed",
+    "cy:open": "cypress open"
   },
   "dependencies": {
     "@google-recaptcha/react": "^1.0.3",

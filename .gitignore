@@ -6,3 +6,5 @@ node_modules
 
 /public/storage
 .tool-versions
+
+/cypress/screenshots
