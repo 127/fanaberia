@@ -13,6 +13,12 @@ const INFO_PAGES = ["support", "contacts", "privacy", "terms", "faq"];
 
 async function seed() {
   const email = "confirmed@domain.test";
+
+  // // cleanup the existing database
+  // await prisma.user.delete({ where: { email } }).catch(() => {
+  //   // no worries if it doesn't exist yet
+  // });
+
   const hashedPassword = await bcrypt.hash("123321123aA", 10);
 
   await prisma.user.create({
@@ -22,6 +28,7 @@ async function seed() {
       confirmed_at: new Date(),
     },
   });
+
   await prisma.user.create({
     data: {
       email: "confirmed-to-recover@domain.test",
@@ -38,6 +45,8 @@ async function seed() {
     },
   });
 
+  // Создаем несколько администраторов
+  // const admins =
   await Promise.all([
     prisma.admin.create({
       data: {

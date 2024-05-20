@@ -3,6 +3,7 @@ node_modules
 /.cache
 /build
 .env
+.DS_Store
 
 /public/storage
 .tool-versions
