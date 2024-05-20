@@ -1,5 +1,5 @@
 export const UNAUTHORIZED_INDEX = "/";
-export const AUTHORIZED_USER_INDEX = "/dashboard";
+export const AUTHORIZED_USER_INDEX = "/";
 export const AUTHORIZED_ADMIN_INDEX = "/warp";
 export const AUTHENTICATION_FAILURE_PATHS = {
   admin: "/warp/sign-in",

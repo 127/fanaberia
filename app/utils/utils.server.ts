@@ -174,6 +174,9 @@ export const validateCaptcha = async (
   recaptchaValue: FormDataEntryValue | null
 ) => {
   invariant(process.env.RECAPTCHA_SITE_KEY, "RECAPTCHA_SITE_KEY must be set");
+
+  if (process.env.REACT_APP_LOCAL) return { success: true };
+
   const captchaResponse = await fetch(
     "https://www.google.com/recaptcha/api/siteverify",
     {

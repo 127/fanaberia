@@ -9,6 +9,7 @@ export interface UserData {
   email: string;
   password?: string;
   passwordConfirmation?: string;
+  terms?: string;
 }
 
 export async function userExists(email: User["email"]) {
