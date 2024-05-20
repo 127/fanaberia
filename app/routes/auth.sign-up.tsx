@@ -31,6 +31,7 @@ import { OauthLinksPanel } from "~/components/AuthSocials";
 import * as yup from "yup";
 import { getSession, commitSession } from "~/services/session.server";
 import { useState, useEffect } from "react";
+import { transporter } from "~/../cypress/emailer";
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
   invariant(process.env.RECAPTCHA_SITE_KEY, "RECAPTCHA_SITE_KEY must be set");
@@ -62,6 +63,7 @@ export const action = async ({ request }: ActionFunctionArgs) => {
     email: formData.get("email") as string,
     password: formData.get("password") as string,
     passwordConfirmation: formData.get("passwordConfirmation") as string,
+    terms: formData.get("terms") as string,
   };
 
   if (typeof _r === "undefined" || _r === false) {
@@ -142,20 +144,44 @@ export const action = async ({ request }: ActionFunctionArgs) => {
 
   const host = request.headers.get("host");
   const proto = request.headers.get("X-Forwarded-Proto") || "http";
-  const link = `${proto}://${host}/auth/confirm?token=${user.confirmation_token}`;
-  try {
-    await sendEmail(
-      user.email,
-      t("sign.up.email.verification.theme"),
-      generateEmailHtml({
-        brand: t("brand"),
-        slogan: t("slogan"),
-        body: t("sign.up.email.verification.text", { link }),
-        warning: t("common.email.warning"),
-      })
-    );
-  } catch (e) {
-    console.log("sendEmail error: ", JSON.stringify(e));
+  const link = `${proto}://${host}/auth/confirm/${user.confirmation_token}`;
+  const body = t("sign.up.email.verification.text").replace(
+    /{{link}}/g,
+    `<a href="${link}">${t("sing.in.error.confirm")}</a>`
+  );
+
+  const letterHtml = generateEmailHtml({
+    brand: t("brand"),
+    slogan: t("slogan"),
+    body,
+    warning: t("common.email.warning"),
+  });
+  if (process.env.NODE_ENV === "production") {
+    try {
+      // send email throught POSTMARK
+      await sendEmail(
+        user.email,
+        t("sign.up.email.verification.theme"),
+        letterHtml
+      );
+    } catch (e) {
+      console.log("sendEmail sign-up error: ", JSON.stringify(e));
+    }
+  } else {
+    try {
+      // send email for auto testing
+      transporter.sendMail({
+        from: '"Fanaberia autotesting" <testing@fanaberia.io>',
+        to: user.email,
+        subject: t("sign.up.email.verification.theme"),
+        html: letterHtml,
+      });
+    } catch (e) {
+      console.log(
+        "Testing transporter.sendMail sign-up error: ",
+        JSON.stringify(e)
+      );
+    }
   }
 
   if (typeof _r !== "undefined") {
@@ -280,6 +306,7 @@ export default function SignUp() {
             : {})}
         />
         <Checkbox
+          data-testid="terms"
           isRequired
           name="terms"
           value={
@@ -293,10 +320,18 @@ export default function SignUp() {
             <Link to={`/${i18n.language}/pages/terms`} className="underline" />
           </Trans>
         </Checkbox>
-        <GoogleReCaptchaProvider siteKey={loaderData.rkey} type="v2-checkbox">
-          <GoogleReCaptchaCheckbox language={i18n.language} />
-        </GoogleReCaptchaProvider>
-        <Button type="submit" color="primary" size="lg" className="max-w-xs">
+        {loaderData.rkey !== "" && (
+          <GoogleReCaptchaProvider siteKey={loaderData.rkey} type="v2-checkbox">
+            <GoogleReCaptchaCheckbox language={i18n.language} />
+          </GoogleReCaptchaProvider>
+        )}
+        <Button
+          type="submit"
+          color="primary"
+          size="lg"
+          className="max-w-xs"
+          data-testid="submit"
+        >
           {t("sign.up.label")}
         </Button>
       </Form>

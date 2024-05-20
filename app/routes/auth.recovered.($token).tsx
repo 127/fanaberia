@@ -5,7 +5,7 @@ import type {
 } from "@remix-run/node";
 import { AUTHENTICATION_FAILURE_PATHS } from "~/utils/utils.common";
 import { json, redirect } from "@remix-run/node";
-import { Form, useActionData } from "@remix-run/react";
+import { Form, useActionData, useLoaderData } from "@remix-run/react";
 import { Button, Card, CardBody, Input } from "@nextui-org/react";
 import { useTranslation } from "react-i18next";
 import { resetPassword, userIsRecovering } from "~/models/user.server";
@@ -33,38 +33,30 @@ type ResetPasswordResponse = {
   };
 };
 
-async function checkToken(
-  request: Request,
-  meta?: ResetPasswordResponse["meta"]
-) {
-  const t = await i18next.getFixedT(request, "common");
-  const url = new URL(request.url);
-  const token = url.searchParams.get("token");
-  let err = null;
-  if (token === null || !(await userIsRecovering(token))) {
-    err = json<ResetPasswordResponse>(
-      { meta, errors: { message: t("recover.reset.impossible") } },
-      { status: 400 }
-    );
-  }
-  return { t, token, err };
-}
-
-export const loader = async ({ request }: LoaderFunctionArgs) => {
+export const loader = async ({ request, params }: LoaderFunctionArgs) => {
   const t = await i18next.getFixedT(request, "common");
   const meta = {
     title: t("meta.auth.recovered-reset.title"),
     description: t("meta.auth.recovered-reset.description"),
     keywords: t("meta.auth.recovered-reset.keywords"),
   };
-  const { err } = await checkToken(request, meta);
-  if (err !== null) return err;
+  if (!params.token || !(await userIsRecovering(params.token))) {
+    return json<ResetPasswordResponse>(
+      { meta, errors: { message: t("recover.reset.impossible") } },
+      { status: 403 }
+    );
+  }
   return json<ResetPasswordResponse>({ meta });
 };
 
-export const action = async ({ request }: ActionFunctionArgs) => {
-  const { token, err } = await checkToken(request);
-  if (err !== null) return err;
+export const action = async ({ request, params }: ActionFunctionArgs) => {
+  const t = await i18next.getFixedT(request, "common");
+  if (!params.token || !(await userIsRecovering(params.token))) {
+    return json<ResetPasswordResponse>(
+      { errors: { message: t("recover.reset.impossible") } },
+      { status: 403 }
+    );
+  }
 
   const formData = await request.formData();
   const fields: ResetPasswordResponse["fields"] = {
@@ -81,7 +73,7 @@ export const action = async ({ request }: ActionFunctionArgs) => {
       const errors = err.inner.reduce(
         (acc, error) => ({
           ...acc,
-          [String(error.path)]: error.message,
+          [String(error.path)]: t(error.message),
         }),
         {}
       );
@@ -89,7 +81,7 @@ export const action = async ({ request }: ActionFunctionArgs) => {
     }
     throw err;
   }
-  await resetPassword(token as string, fields.password as string);
+  await resetPassword(params.token, fields.password as string);
   return redirect(`${AUTHENTICATION_FAILURE_PATHS.user}?recovered=true`);
 };
 
@@ -101,8 +93,9 @@ export const meta: MetaFunction<typeof loader> = ({ data }) => {
   ];
 };
 
-export default function Reset() {
+export default function RecoveredToken() {
   const actionData = useActionData<typeof action>();
+  const loaderData = useLoaderData<typeof loader>();
   const { t } = useTranslation("common");
   const [values, setValues] = useState<ResetPasswordResponse["fields"]>();
   const [errors, setErrors] = useState(actionData?.errors);
@@ -126,15 +119,18 @@ export default function Reset() {
     if (actionData?.errors) {
       setErrors(actionData.errors);
     }
+    if (loaderData.errors) {
+      setErrors(loaderData.errors);
+    }
     if (actionData?.fields) {
       setValues(actionData.fields);
     }
-  }, [actionData]);
+  }, [actionData, loaderData]);
 
   return (
     <div className="flex flex-col gap-4 mx-auto w-full md:w-2/3 lg:w-1/4">
       <h1 className="flex w-full flex-col">{t("recover.heading")}</h1>
-      {errors && errors["message" as keyof typeof values] ? (
+      {errors && errors["message" as keyof typeof errors] ? (
         <Card className="flex gap-4 bg-success-200" key="recover-inited">
           <CardBody>{errors["message" as keyof typeof values]}</CardBody>
         </Card>
@@ -177,7 +173,7 @@ export default function Reset() {
                 }
               : {})}
           />
-          <Button type="submit" color="primary" size="lg">
+          <Button type="submit" color="primary" size="lg" data-testid="submit">
             {t("recover.label")}
           </Button>
         </Form>

@@ -1,8 +1,10 @@
 declare global {
   namespace Cypress {
     interface Chainable<Subject> {
-      clickLocaleLink(label: string): Chainable<Subject>;
-      notExistingPage(): Chainable<Subject>;
+      changeLocale(locale: string): Chainable<Subject>;
+      notExistingPage(locale?: string): Chainable<Subject>;
+      // t(key: string, lang?: string): string;
+      login(email?: string, password?: string): Chainable<void>;
     }
   }
 }

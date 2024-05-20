@@ -8,3 +8,4 @@ node_modules
 .tool-versions
 
 /cypress/screenshots
+/cypress/downloads

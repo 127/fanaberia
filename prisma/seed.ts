@@ -22,6 +22,13 @@ async function seed() {
       confirmed_at: new Date(),
     },
   });
+  await prisma.user.create({
+    data: {
+      email: "confirmed-to-recover@domain.test",
+      password: hashedPassword,
+      confirmed_at: new Date(),
+    },
+  });
 
   await prisma.user.create({
     data: {

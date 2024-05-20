@@ -5,6 +5,7 @@ export const AUTHENTICATION_FAILURE_PATHS = {
   admin: "/warp/sign-in",
   user: "/auth/sign-in",
 };
+export const SIGNUP_USER_PATH = "/auth/sign-up";
 
 export const localeFlagDictionary: { [key: string]: string[] } = {
   en: ["🇬🇧", "English"],

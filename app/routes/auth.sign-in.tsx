@@ -179,7 +179,7 @@ export default function SignIn() {
               }
             : {})}
         />
-        <Button type="submit" color="primary" size="lg">
+        <Button type="submit" color="primary" size="lg" data-testid="submit">
           {t("sign.in.label")}
         </Button>
         <Link to="/auth/recover">{t("recover.link")}</Link>

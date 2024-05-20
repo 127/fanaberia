@@ -2,7 +2,10 @@
   "compilerOptions": {
     "target": "es5",
     "lib": ["es5", "dom"],
-    "types": ["cypress", "node"]
+    "types": ["cypress", "node"],
+    "esModuleInterop": true, // added to support import/export raw .json files [translations]
+    "resolveJsonModule": true, // added to support import/export raw .json files [translations]
+    "jsx": "react" // added to support JSX in TS files [generateEmailHtml]
   },
   "include": ["**/*.ts"]
 }

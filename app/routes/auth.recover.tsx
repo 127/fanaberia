@@ -15,6 +15,7 @@ import { sendEmail } from "../utils/utils.server";
 import i18next from "../i18next.server";
 import passwordRecoveryValidationSchema from "~/validators/passwordRecoveryValidationSchema";
 import { generateEmailHtml } from "~/templates/generateEmailHtml";
+import { transporter } from "~/../cypress/emailer";
 
 export const action = async ({ request }: ActionFunctionArgs) => {
   const t = await i18next.getFixedT(request, "common");
@@ -35,21 +36,40 @@ export const action = async ({ request }: ActionFunctionArgs) => {
     const token = await setPasswordRecoveryToken(email);
     const host = request.headers.get("host");
     const proto = request.headers.get("X-Forwarded-Proto") || "http";
-    const link = `${proto}://${host}/auth/recovered-reset?token=${token}`;
+    const link = `${proto}://${host}/auth/recovered/${token}`;
+    const body = t("sign.up.email.recovery.text").replace(
+      /{{link}}/g,
+      `<a href="${link}">${t("recover.email.link.theme")}</a>`
+    );
+
+    const htmlEmail = generateEmailHtml({
+      brand: t("brand"),
+      slogan: t("slogan"),
+      body,
+      warning: t("common.email.warning"),
+    });
     // console.log('setPasswordRecoveryToken', token);
-    try {
-      await sendEmail(
-        email,
-        t("sign.up.email.recovery.theme"),
-        generateEmailHtml({
-          brand: t("brand"),
-          slogan: t("slogan"),
-          body: t("sign.up.email.recovery.text", { link }),
-          warning: t("common.email.warning"),
-        })
-      );
-    } catch (e) {
-      console.log("sendEmail error: ", JSON.stringify(e));
+    if (process.env.NODE_ENV === "production") {
+      try {
+        await sendEmail(email, t("sign.up.email.recovery.theme"), htmlEmail);
+      } catch (e) {
+        console.log("sendEmail pass recover error: ", JSON.stringify(e));
+      }
+    } else {
+      try {
+        // send email for auto testing
+        transporter.sendMail({
+          from: '"Fanaberia autotesting" <testing@fanaberia.io>',
+          to: email,
+          subject: t("sign.up.email.recovery.theme"),
+          html: htmlEmail,
+        });
+      } catch (e) {
+        console.log(
+          "Testing transporter.sendMail pass recover error: ",
+          JSON.stringify(e)
+        );
+      }
     }
   }
   return json({ success: true });
@@ -95,7 +115,7 @@ export default function Recover() {
             autoComplete="username email"
             description={t("recover.hint")}
           />
-          <Button type="submit" color="primary" size="lg">
+          <Button type="submit" color="primary" size="lg" data-testid="submit">
             {t("recover.label")}
           </Button>
         </Form>

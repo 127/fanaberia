@@ -34,7 +34,7 @@ export default function NotExistingRootLevelRoute() {
     <>
       <h1 className="font-bold text-2xl">{t("system.error.404")}</h1>
       <p className="py-5">
-        <Link to="/" className="underline">
+        <Link to="/" className="underline" data-testid="link-home-404">
           {t("system.error.home")} &rarr;
         </Link>
       </p>

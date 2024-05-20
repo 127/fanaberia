@@ -7,11 +7,9 @@ import { confirmUser } from "../models/user.server";
 import { AUTHENTICATION_FAILURE_PATHS } from "~/utils/utils.common";
 import i18next from "../i18next.server";
 
-export const loader = async ({ request }: LoaderFunctionArgs) => {
+export const loader = async ({ request, params }: LoaderFunctionArgs) => {
   const t = await i18next.getFixedT(request, "common");
-  const url = new URL(request.url);
-  const token = url.searchParams.get("token") || false;
-  if (!token || !(await confirmUser(token))) {
+  if (!params.token || !(await confirmUser(params.token))) {
     return json({
       meta: {
         title: t("meta.auth.confirm.title"),
