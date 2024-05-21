@@ -109,7 +109,7 @@ const Header: React.FC<{ userExists: boolean; isDarkMode: boolean }> = ({
 
       <NavbarContent justify="end">
         {userExists ? (
-          <div className="hidden md:block">
+          <div className="hidden md:block" data-testid="profile-button">
             <Dropdown>
               <DropdownTrigger>
                 <Button variant="light">
@@ -123,7 +123,11 @@ const Header: React.FC<{ userExists: boolean; isDarkMode: boolean }> = ({
                 </DropdownItem>
                 <DropdownItem key="logout">
                   <Form action="/auth/sign-out" method="post">
-                    <Button type="submit" className="w-full">
+                    <Button
+                      type="submit"
+                      className="w-full"
+                      data-testid="desktop-sign-out-button"
+                    >
                       {t("sign.out.label")}
                     </Button>
                   </Form>
@@ -153,7 +157,7 @@ const Header: React.FC<{ userExists: boolean; isDarkMode: boolean }> = ({
             </NavbarItem>
           </>
         )}
-        <NavbarItem className="hidden md:block">
+        <NavbarItem className="hidden md:block" data-testid="language-switcher">
           <LanguageSwitcher selectedLocale={i18n.language} />
         </NavbarItem>
       </NavbarContent>

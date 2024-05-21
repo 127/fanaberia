@@ -61,7 +61,9 @@ Cypress.on("uncaught:exception", (err) => {
 // Cypress.Commands.add("t", (key, lang) => t(key, lang));
 
 Cypress.Commands.add("changeLocale", (locale) => {
-  cy.get('button[data-slot="trigger"]').should("be.visible").click();
+  cy.get('li[data-testid="language-switcher"]>button[data-slot="trigger"]')
+    .should("be.visible")
+    .click();
   cy.get(`li[data-key="${locale}"]`).should("be.visible").click();
 });
 
@@ -80,25 +82,15 @@ Cypress.Commands.add("notExistingPage", (locale) => {
 Cypress.Commands.add(
   "login",
   (email = "confirmed@domain.test", password = "123321123aA") => {
-    cy.session(
-      email,
-      () => {
-        cy.visit(AUTHENTICATION_FAILURE_PATHS.user).wait(50); //hack for nextui
-        cy.get("input[name=email]").should("be.visible").type(email);
+    cy.visit(AUTHENTICATION_FAILURE_PATHS.user).wait(50); //hack for nextui
+    cy.get("input[name=email]").should("be.visible").type(email);
 
-        cy.get("input[name=password]")
-          .should("be.visible")
-          .focus()
-          .type(password);
+    cy.get("input[name=password]").should("be.visible").focus().type(password);
 
-        cy.get('[data-testid="submit"]').click();
-        cy.url().should("include", AUTHORIZED_USER_INDEX);
-      },
-      {
-        validate: () => {
-          cy.getCookie("_session").should("exist");
-        },
-      }
-    );
+    cy.get('[data-testid="submit"]').click();
+    cy.url().should("include", AUTHORIZED_USER_INDEX);
+    // cy.screenshot("TASK[login]: logged in");
+
+    cy.getCookie("_session").should("exist");
   }
 );
