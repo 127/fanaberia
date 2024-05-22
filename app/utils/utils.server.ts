@@ -170,12 +170,21 @@ export const fileExists = async (filePath: string): Promise<boolean> => {
   }
 };
 
+/**
+ * Validates the reCAPTCHA value using the Google reCAPTCHA API.
+ *
+ * Ensures that the reCAPTCHA site key is set and skips validation if the application is not running in production.
+ *
+ * @param {FormDataEntryValue | null} recaptchaValue - The reCAPTCHA value obtained from the form.
+ * @returns {Promise<Object>} An object containing the reCAPTCHA verification result. If not in production, returns an object with `success: true`.
+ * @throws Will throw an error if `RECAPTCHA_SITE_KEY` is not set in the environment variables.
+ */
 export const validateCaptcha = async (
   recaptchaValue: FormDataEntryValue | null
 ) => {
   invariant(process.env.RECAPTCHA_SITE_KEY, "RECAPTCHA_SITE_KEY must be set");
 
-  if (process.env.REACT_APP_LOCAL) return { success: true };
+  if (process.env.NODE_ENV !== "production") return { success: true };
 
   const captchaResponse = await fetch(
     "https://www.google.com/recaptcha/api/siteverify",
