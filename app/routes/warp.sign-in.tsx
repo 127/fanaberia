@@ -13,17 +13,21 @@ import { EyeSlashFilledIcon } from "~/assets/EyeSlashFilledIcon";
 import { EyeFilledIcon } from "~/assets/EyeFilledIcon";
 import { useTranslation } from "react-i18next";
 import { UserData } from "~/models/user.server";
+import {
+  AUTHENTICATION_FAILURE_PATHS,
+  AUTHORIZED_ADMIN_INDEX,
+} from "~/utils/utils.common";
 
 export const action = async ({ request }: ActionFunctionArgs) =>
   await authenticator.authenticate("form-admin", request, {
-    successRedirect: "/warp",
-    failureRedirect: "/warp/sign-in",
+    successRedirect: AUTHORIZED_ADMIN_INDEX,
+    failureRedirect: AUTHENTICATION_FAILURE_PATHS.admin,
     throwOnError: true,
   });
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
   await authenticator.isAuthenticated(request, {
-    successRedirect: "/warp",
+    successRedirect: AUTHORIZED_ADMIN_INDEX,
   });
 
   const session = await getSession(request.headers.get("Cookie"));
@@ -44,7 +48,7 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
 
 export const meta: MetaFunction = () => [{ title: "Sign in" }];
 
-export default function Login() {
+export default function WarpSignIn() {
   const loaderData = useLoaderData<typeof loader>();
   const { t } = useTranslation("common");
   const [isVisible, setIsVisible] = useState(false);

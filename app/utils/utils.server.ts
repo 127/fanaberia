@@ -1,3 +1,6 @@
+/**
+ * @fileoverview This helper is will be used by Remix only at a server-side due to .server.ts extension Remix convention.
+ */
 import { redirect } from "@remix-run/react";
 import invariant from "tiny-invariant";
 import { isIP } from "is-ip";

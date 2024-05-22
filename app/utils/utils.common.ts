@@ -1,3 +1,6 @@
+/**
+ * @fileoverview This helper is will be used by Remix at both a server- and client-side.
+ */
 export const UNAUTHORIZED_INDEX = "/";
 export const AUTHORIZED_USER_INDEX = "/";
 export const AUTHORIZED_ADMIN_INDEX = "/warp";

@@ -1,11 +1,12 @@
 import { useLocation } from "@remix-run/react";
+import { AUTHORIZED_ADMIN_INDEX } from "~/utils/utils.common";
 
 type MetaIconsLinksProps = {
   env: "development" | "production" | "test";
 };
 const MetaIconsLinks = ({ env }: MetaIconsLinksProps): JSX.Element => {
   const location = useLocation();
-  const isWarp = location.pathname.startsWith("/warp");
+  const isWarp = location.pathname.startsWith(AUTHORIZED_ADMIN_INDEX);
   // console.log("Current environment: ", env);
   return (
     <>
