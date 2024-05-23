@@ -1,1 +1,1 @@
-npm run cy:e2e
+npm run cy:e2e:chrome
