@@ -13,7 +13,8 @@
     "cy:open": "cypress open",
     "cy:verify": "cypress verify",
     "cy:e2e": "cypress run",
-    "cy:e2e:chrome": "cypress run --browser chrome"
+    "cy:e2e:chrome": "cypress run --browser chrome",
+    "prepare": "husky"
   },
   "dependencies": {
     "@google-recaptcha/react": "^1.0.3",
@@ -65,6 +66,7 @@
     "eslint-plugin-jsx-a11y": "^6.8.0",
     "eslint-plugin-react": "^7.34.1",
     "eslint-plugin-react-hooks": "^4.6.2",
+    "husky": "^9.0.11",
     "nodemailer": "^6.9.13",
     "postcss": "^8.4.38",
     "prisma": "^5.13.0",
