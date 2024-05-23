@@ -82,20 +82,23 @@ async function seed() {
       categoryPromises.push(categoryPromise);
       categoryPromise.then((category: Category) => {
         const lc = category.locale as keyof typeof allFakers;
-        postPromises.push(
-          prisma.post.create({
-            data: {
-              slug: allFakers["en"].lorem.slug(),
-              title: allFakers[lc].lorem.sentence(),
-              keywords: allFakers[lc].lorem.words(),
-              description: allFakers[lc].lorem.paragraph(),
-              summary: allFakers[lc].lorem.paragraph(),
-              heading: allFakers[lc].lorem.sentence(),
-              content: allFakers[lc].lorem.paragraphs(4),
-              category_id: category.id,
-            },
-          })
-        );
+        // 20 articles at each categgory
+        for (let i = 0; i < 20; i++) {
+          postPromises.push(
+            prisma.post.create({
+              data: {
+                slug: allFakers["en"].lorem.slug(),
+                title: allFakers[lc].lorem.sentence(),
+                keywords: allFakers[lc].lorem.words(),
+                description: allFakers[lc].lorem.paragraph(),
+                summary: allFakers[lc].lorem.paragraph(),
+                heading: allFakers[lc].lorem.sentence(),
+                content: allFakers[lc].lorem.paragraphs(4),
+                category_id: category.id,
+              },
+            })
+          );
+        }
       });
     });
   }

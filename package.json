@@ -11,9 +11,9 @@
     "typecheck": "tsc",
     "setup": "prisma generate && prisma migrate deploy && prisma db seed",
     "cy:open": "cypress open",
-    "cy:run": "cypress run",
     "cy:verify": "cypress verify",
-    "e2e:chrome": "cypress run --browser chrome"
+    "cy:e2e": "cypress run",
+    "cy:e2e:chrome": "cypress run --browser chrome"
   },
   "dependencies": {
     "@google-recaptcha/react": "^1.0.3",

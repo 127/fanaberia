@@ -51,10 +51,16 @@ export default function PostsIndex() {
   return (
     <div>
       <h1 className="font-bold text-2xl">{t("nav.label.blog")}</h1>
-      <div className="grid grid-cols-1 gap-4 md:grid-cols-3 my-5">
+      <div
+        className="grid grid-cols-1 gap-4 md:grid-cols-3 my-5"
+        data-testid="posts-list"
+      >
         {posts.map((post) => (
           <Card key={post.id} className="py-4">
-            <CardHeader className="pb-0 pt-2 px-4 flex-col items-start">
+            <CardHeader
+              className="pb-0 pt-2 px-4 flex-col items-start"
+              data-testid="posts-card-header"
+            >
               <h2 className="font-bold text-lg underline">
                 <Link to={`/${i18n.language}/posts/${post.slug}`}>
                   {post.heading}
@@ -73,7 +79,7 @@ export default function PostsIndex() {
             <CardBody className="px-4">
               <p>{post.summary}</p>
             </CardBody>
-            <CardFooter className="px-4">
+            <CardFooter className="px-4" data-testid="posts-card-footer">
               <p className="font-semibold text-default-400 text-sm">
                 {t("post.label.category")}:&nbsp;
                 <Link
@@ -93,6 +99,7 @@ export default function PostsIndex() {
         onChange={(page) => {
           navigate(`?page=${page}`);
         }}
+        data-testid="posts-pagination"
       />
     </div>
   );

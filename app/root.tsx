@@ -108,7 +108,11 @@ export function ErrorBoundary() {
       <body className="dark text-foreground bg-background min-h-screen">
         <main className="mx-auto w-full max-w-screen-xl p-4 py-6 lg:py-8">
           <h1 className="font-bold text-2xl">
-            <Link to="/" className="flex flex-row text-foreground items-center">
+            <Link
+              to="/"
+              className="flex flex-row text-foreground items-center"
+              data-testid="error-h1-link-to-root"
+            >
               <Logo width={30} height={30} className="me-2 text-foreground" />
               <span className="font-bold text-inherit">{t("brand")}</span>
             </Link>
@@ -124,7 +128,11 @@ export function ErrorBoundary() {
                 : "Unknown Error"}
             </p>
             <p className="py-5">
-              <Link to="/" className="underline">
+              <Link
+                to="/"
+                className="underline"
+                data-testid="error-p-link-to-root"
+              >
                 {t("system.error.home")} &rarr;
               </Link>
             </p>

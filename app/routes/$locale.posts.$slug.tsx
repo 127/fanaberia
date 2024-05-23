@@ -26,7 +26,7 @@ export default function PostPage() {
 
   return (
     <article className="flex flex-col gap-4 w-full prose dark:prose-invert max-w-none">
-      <h1>{post.title}</h1>
+      <h1>{post.heading}</h1>
       <time className="text-sm text-default-500">
         {new Date(post.created_at).toLocaleDateString(i18n.language, {
           year: "numeric",

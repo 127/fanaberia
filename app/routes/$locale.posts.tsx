@@ -20,11 +20,11 @@ export default function Posts() {
       <section className="w-full md:w-3/4">
         <Outlet />
       </section>
-      <aside className="w-full md:w-1/4">
+      <aside className="w-full md:w-1/4" data-testid="posts-aside-column">
         <h2 className="font-bold text-xl mb-6 ml-6">
           {t("post.label.categories")}
         </h2>
-        <ul className="ml-6">
+        <ul className="ml-6" data-testid="categories-menu-list">
           {categories.map((category) => (
             <li key={category.id} className="leading-8">
               <Link to={`/${i18n.language}/posts/categories/${category.slug}`}>
