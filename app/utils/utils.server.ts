@@ -185,7 +185,7 @@ export const fileExists = async (filePath: string): Promise<boolean> => {
  */
 export const validateCaptcha = async (
   recaptchaValue: FormDataEntryValue | null
-): Promise<object> => {
+): Promise<{ [key: string]: string | boolean }> => {
   invariant(process.env.RECAPTCHA_SITE_KEY, "RECAPTCHA_SITE_KEY must be set");
 
   if (process.env.NODE_ENV !== "production") return { success: true };

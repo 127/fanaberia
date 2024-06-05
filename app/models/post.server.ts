@@ -30,12 +30,9 @@ export interface PostData {
  *
  * @param {number} page - The current page number.
  * @param {string} [locale] - The locale to filter categories.
- * @returns {Promise<{ posts: Post[]; totalPages: number }>} The paginated posts and total pages.
+ * @returns {Promise<any>} The paginated posts and total pages.
  */
-export const getPaginatedPosts = async (
-  page: number,
-  locale?: string
-): Promise<{ posts: Post[]; totalPages: number }> => {
+export const getPaginatedPosts = async (page: number, locale?: string) => {
   const skip = (page - 1) * POSTS_PER_PAGE;
   const categories = await prisma.category.findMany({ where: { locale } });
   const categoryIds = categories.map((category) => category.id);
@@ -66,7 +63,7 @@ export const getPaginatedPosts = async (
  *
  * @param {number} page - The current page number.
  * @param {number} category_id - The category ID to filter posts.
- * @returns {Promise<{ posts: Post[]; totalPages: number }>} The paginated posts and total pages.
+ * @returns {Promise<{ posts: any; totalPages: number }>} The paginated posts and total pages.
  */
 export const getPaginatedPostsByCategory = async (
   page: number,
@@ -97,9 +94,9 @@ export const getPaginatedPostsByCategory = async (
  * Fetches a post by its slug.
  *
  * @param {string} slug - The slug of the post.
- * @returns {Promise<Post | null>} The post with the specified slug.
+ * @returns {Promise<any>} The post with the specified slug.
  */
-export const getPostBySlug = async (slug: string): Promise<Post | null> => {
+export const getPostBySlug = async (slug: string) => {
   const post = await prisma.post.findUnique({
     where: { slug },
     include: {
@@ -114,9 +111,9 @@ export const getPostBySlug = async (slug: string): Promise<Post | null> => {
  * Fetches all posts with optional locale filtering.
  *
  * @param {string} [locale] - The locale to filter categories.
- * @returns {Promise<Post[]>} The list of posts.
+ * @returns {Promise<any>} The list of posts.
  */
-export const getPosts = async (locale?: string): Promise<Post[]> => {
+export const getPosts = async (locale?: string) => {
   const posts = await prisma.post.findMany({
     orderBy: {
       id: "desc",
@@ -155,9 +152,9 @@ export const createPost = async (data: PostData): Promise<Post> => {
  * Fetches a post by its ID.
  *
  * @param {number} id - The ID of the post.
- * @returns {Promise<Post | null>} The post with the specified ID.
+ * @returns {Promise<any>} The post with the specified ID.
  */
-export const getPostById = async (id: number): Promise<Post | null> => {
+export const getPostById = async (id: number) => {
   const post = await prisma.post.findUnique({
     where: { id },
     include: {
