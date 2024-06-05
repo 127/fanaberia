@@ -177,6 +177,7 @@ export const fileExists = async (filePath: string): Promise<boolean> => {
  * Validates the reCAPTCHA value using the Google reCAPTCHA API.
  *
  * Ensures that the reCAPTCHA site key is set and skips validation if the application is not running in production.
+ * @warning for automated tests, the reCAPTCHA validation will be skipped if not in production
  *
  * @param {FormDataEntryValue | null} recaptchaValue - The reCAPTCHA value obtained from the form.
  * @returns {Promise<Object>} An object containing the reCAPTCHA verification result. If not in production, returns an object with `success: true`.
@@ -184,7 +185,7 @@ export const fileExists = async (filePath: string): Promise<boolean> => {
  */
 export const validateCaptcha = async (
   recaptchaValue: FormDataEntryValue | null
-) => {
+): Promise<object> => {
   invariant(process.env.RECAPTCHA_SITE_KEY, "RECAPTCHA_SITE_KEY must be set");
 
   if (process.env.NODE_ENV !== "production") return { success: true };
