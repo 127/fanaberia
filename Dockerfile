@@ -3,7 +3,7 @@ FROM node:22.4.0-alpine3.19 as base
 
 ENV NODE_ENV production
 RUN apk update && apk --no-cache add tzdata icu-data-full build-base postgresql-dev
-RUN npm install -g npm@10.8.0
+RUN npm install -g npm@10.8.1
 
 # Install all node_modules, including dev dependencies
 FROM base as deps
