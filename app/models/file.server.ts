@@ -2,9 +2,9 @@
  * This file contains functions for interacting with the File entity in the database.
  * It includes functions to create, read, update, and delete files.
  */
-import type { File } from "@prisma/client";
-import { prisma } from "~/services/db.server";
-export type { File } from "@prisma/client";
+import { prisma } from '~/services/db.server';
+import type { File } from '@prisma/client';
+export type { File } from '@prisma/client';
 
 /**
  * Interface representing the data structure for a file.
@@ -30,7 +30,7 @@ interface FileData {
 export const getFiles = async (): Promise<File[]> => {
   const files = await prisma.file.findMany({
     orderBy: {
-      id: "desc",
+      id: 'desc',
     },
   });
 
@@ -71,7 +71,7 @@ export const getFileById = async (id: number): Promise<File | null> => {
  */
 export const updateFile = async (
   id: number,
-  data: FileData | { alt: string; title: string; admin_id: number }
+  data: FileData | { alt: string; title: string; admin_id: number },
 ): Promise<File> => {
   const updatedFile = await prisma.file.update({
     where: { id },

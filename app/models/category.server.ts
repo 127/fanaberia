@@ -2,9 +2,9 @@
  * This file contains utility functions for managing the Category model using Prisma in a Remix application.
  * The functions include operations for fetching, creating, updating categories.
  */
-import type { Category } from "@prisma/client";
-import { prisma } from "~/services/db.server";
-export type { Category } from "@prisma/client";
+import { prisma } from '~/services/db.server';
+import type { Category } from '@prisma/client';
+export type { Category } from '@prisma/client';
 
 /**
  * Represents the data required to create or update a category.
@@ -29,7 +29,7 @@ export interface CategoryData {
  */
 export const getCategoryBySlug = async (
   slug: string,
-  locale?: string
+  locale?: string,
 ): Promise<Category | null> => {
   const category = await prisma.category.findUnique({
     where: { slug, locale },
@@ -50,7 +50,7 @@ export const getCategories = async (locale?: string): Promise<Category[]> => {
       locale,
     },
     orderBy: {
-      id: "desc",
+      id: 'desc',
     },
     include: {
       posts: true,
@@ -97,7 +97,7 @@ export const getCategoryById = async (id: number): Promise<Category | null> => {
  */
 export const updateCategory = async (
   id: number,
-  data: CategoryData
+  data: CategoryData,
 ): Promise<Category> => {
   const updatedCategory = await prisma.category.update({
     where: { id },

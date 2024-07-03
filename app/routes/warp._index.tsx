@@ -1,17 +1,17 @@
-import { Listbox, ListboxItem } from "@nextui-org/react";
-import type { LoaderFunctionArgs, MetaFunction } from "@remix-run/node";
-import { json } from "@remix-run/node";
-import { Link } from "@remix-run/react";
-import { authenticateUserByRole } from "~/utils/utils.server";
+import { Link } from '@remix-run/react';
+import { Listbox, ListboxItem } from '@nextui-org/react';
+import { authenticateUserByRole } from '~/utils/utils.server';
+import { json } from '@remix-run/node';
+import type { LoaderFunctionArgs, MetaFunction } from '@remix-run/node';
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
-  await authenticateUserByRole(request, "admin");
+  await authenticateUserByRole(request, 'admin');
   return json({});
 };
 
-export const meta: MetaFunction = () => [{ title: "Warp" }];
+export const meta: MetaFunction = () => [{ title: 'Warp' }];
 
-const links = ["posts", "categories", "users", "pages", "files", "admins"];
+const links = ['posts', 'categories', 'users', 'pages', 'files', 'admins'];
 export default function WarpIndex() {
   // const loaderData = useLoaderData<typeof loader>()
   return (
@@ -23,8 +23,7 @@ export default function WarpIndex() {
             key={item}
             textValue={item}
             aria-labelledby="mnuList"
-            aria-describedby="mnuList"
-          >
+            aria-describedby="mnuList">
             <Link to={item}>
               {item.charAt(0).toUpperCase() + item.slice(1)}
             </Link>

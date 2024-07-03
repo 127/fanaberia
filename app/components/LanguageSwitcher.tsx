@@ -1,22 +1,22 @@
-import { useFetcher } from "@remix-run/react";
 import {
-  Dropdown,
-  DropdownTrigger,
   Button,
-  DropdownMenu,
+  Dropdown,
   DropdownItem,
-} from "@nextui-org/react";
-import i18n from "~/i18n";
-import { localeFlagDictionary } from "~/utils/utils.common";
+  DropdownMenu,
+  DropdownTrigger,
+} from '@nextui-org/react';
+import { localeFlagDictionary } from '~/utils/utils.common';
+import { useFetcher } from '@remix-run/react';
+import i18n from '~/i18n';
 
-const langUrl = "/api/v1/locale";
+const langUrl = '/api/v1/locale';
 
 const LanguageSwitcher = ({ selectedLocale }: { selectedLocale: string }) => {
   // const { t } = useTranslation("common");
   const fetcher = useFetcher();
 
   const toggleLang = (locale: string) =>
-    fetcher.submit({ locale }, { method: "post", action: langUrl });
+    fetcher.submit({ locale }, { method: 'post', action: langUrl });
 
   return (
     <Dropdown>
@@ -27,14 +27,12 @@ const LanguageSwitcher = ({ selectedLocale }: { selectedLocale: string }) => {
         aria-label="Static Actions"
         disallowEmptySelection
         selectionMode="single"
-        selectedKeys={[selectedLocale]}
-      >
+        selectedKeys={[selectedLocale]}>
         {i18n.supportedLngs.map((lang) => (
           <DropdownItem
             key={lang}
             className="text-center"
-            onClick={() => toggleLang(lang)}
-          >
+            onClick={() => toggleLang(lang)}>
             {`${localeFlagDictionary[lang][0]} ${localeFlagDictionary[lang][1]}`}
           </DropdownItem>
         ))}

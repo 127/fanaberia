@@ -3,9 +3,9 @@
  * These functions include fetching paginated posts, getting posts by category or slug,
  * creating new posts, and updating existing posts. It also defines the structure for post data.
  */
-import { Post } from "@prisma/client";
-import { prisma } from "~/services/db.server";
-export type { Post } from "@prisma/client";
+import { Post } from '@prisma/client';
+import { prisma } from '~/services/db.server';
+export type { Post } from '@prisma/client';
 
 const POSTS_PER_PAGE = 9;
 
@@ -46,7 +46,7 @@ export const getPaginatedPosts = async (page: number, locale?: string) => {
     include: {
       category: true,
     },
-    orderBy: { created_at: "desc" },
+    orderBy: { created_at: 'desc' },
   });
   const totalPosts = await prisma.post.count({
     where: {
@@ -67,7 +67,7 @@ export const getPaginatedPosts = async (page: number, locale?: string) => {
  */
 export const getPaginatedPostsByCategory = async (
   page: number,
-  category_id: number
+  category_id: number,
 ): Promise<{ posts: Post[]; totalPages: number }> => {
   const skip = (page - 1) * POSTS_PER_PAGE;
   const totalPosts = await prisma.post.count({
@@ -80,7 +80,7 @@ export const getPaginatedPostsByCategory = async (
     take: POSTS_PER_PAGE,
     where: { category_id },
     orderBy: {
-      created_at: "desc",
+      created_at: 'desc',
     },
     include: {
       category: true,
@@ -116,7 +116,7 @@ export const getPostBySlug = async (slug: string) => {
 export const getPosts = async (locale?: string) => {
   const posts = await prisma.post.findMany({
     orderBy: {
-      id: "desc",
+      id: 'desc',
     },
     include: {
       category: {

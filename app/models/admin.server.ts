@@ -2,10 +2,10 @@
  * This file contains utility functions for managing the Admin model using Prisma in a Remix application.
  * The functions include operations for fetching, creating, updating, and validating admin records.
  */
-import type { Admin } from "@prisma/client";
-import bcrypt from "bcryptjs";
-import { prisma } from "~/services/db.server";
-export type { Admin } from "@prisma/client";
+import { prisma } from '~/services/db.server';
+import bcrypt from 'bcryptjs';
+import type { Admin } from '@prisma/client';
+export type { Admin } from '@prisma/client';
 
 /**
  * Represents the data required to create or update an admin.
@@ -23,7 +23,7 @@ export interface AdminData {
  * @param {Admin["id"]} id - The ID of the admin to fetch.
  * @returns {Promise<Admin | null>} The admin with the specified ID, or null if not found.
  */
-export async function getAdminById(id: Admin["id"]): Promise<Admin | null> {
+export async function getAdminById(id: Admin['id']): Promise<Admin | null> {
   return await prisma.admin.findUnique({ where: { id } });
 }
 
@@ -44,8 +44,8 @@ export async function getAdmins(): Promise<Admin[]> {
  * @returns {Promise<Admin>} The newly created admin.
  */
 export async function createAdmin(
-  email: Admin["email"],
-  password: string
+  email: Admin['email'],
+  password: string,
 ): Promise<Admin> {
   const hashedPassword = await bcrypt.hash(password, 10);
   return await prisma.admin.create({
@@ -66,8 +66,8 @@ export async function createAdmin(
  */
 export async function updateAdmin(
   id: number,
-  email: Admin["email"],
-  password: string
+  email: Admin['email'],
+  password: string,
 ): Promise<Admin> {
   const hashedPassword = await bcrypt.hash(password, 10);
   return await prisma.admin.update({
@@ -88,8 +88,8 @@ export async function updateAdmin(
  */
 export async function validateFormAdmin(
   email: string,
-  password: string
-): Promise<Omit<Admin, "password"> | null> {
+  password: string,
+): Promise<Omit<Admin, 'password'> | null> {
   const adminWithPassword = await prisma.admin.findUnique({
     where: { email },
   });

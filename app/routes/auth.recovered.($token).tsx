@@ -1,18 +1,18 @@
+import * as yup from 'yup';
+import { AUTHENTICATION_FAILURE_PATHS } from '~/utils/utils.common';
+import { Button, Card, CardBody, Input } from '@nextui-org/react';
+import { Form, useActionData, useLoaderData } from '@remix-run/react';
+import { json, redirect } from '@remix-run/node';
+import { resetPassword, userIsRecovering } from '~/models/user.server';
+import { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import i18next from '~/i18next.server';
+import passwordRecoveredValidationSchema from '~/validators/passwordRecoveredValidationSchema';
 import type {
   ActionFunctionArgs,
-  MetaFunction,
   LoaderFunctionArgs,
-} from "@remix-run/node";
-import { AUTHENTICATION_FAILURE_PATHS } from "~/utils/utils.common";
-import { json, redirect } from "@remix-run/node";
-import { Form, useActionData, useLoaderData } from "@remix-run/react";
-import { Button, Card, CardBody, Input } from "@nextui-org/react";
-import { useTranslation } from "react-i18next";
-import { resetPassword, userIsRecovering } from "~/models/user.server";
-import * as yup from "yup";
-import i18next from "~/i18next.server";
-import passwordRecoveredValidationSchema from "~/validators/passwordRecoveredValidationSchema";
-import { useState, useEffect } from "react";
+  MetaFunction,
+} from '@remix-run/node';
 
 type ResetPasswordResponse = {
   meta?: {
@@ -34,34 +34,34 @@ type ResetPasswordResponse = {
 };
 
 export const loader = async ({ request, params }: LoaderFunctionArgs) => {
-  const t = await i18next.getFixedT(request, "common");
+  const t = await i18next.getFixedT(request, 'common');
   const meta = {
-    title: t("meta.auth.recovered-reset.title"),
-    description: t("meta.auth.recovered-reset.description"),
-    keywords: t("meta.auth.recovered-reset.keywords"),
+    title: t('meta.auth.recovered-reset.title'),
+    description: t('meta.auth.recovered-reset.description'),
+    keywords: t('meta.auth.recovered-reset.keywords'),
   };
   if (!params.token || !(await userIsRecovering(params.token))) {
     return json<ResetPasswordResponse>(
-      { meta, errors: { message: t("recover.reset.impossible") } },
-      { status: 403 }
+      { meta, errors: { message: t('recover.reset.impossible') } },
+      { status: 403 },
     );
   }
   return json<ResetPasswordResponse>({ meta });
 };
 
 export const action = async ({ request, params }: ActionFunctionArgs) => {
-  const t = await i18next.getFixedT(request, "common");
+  const t = await i18next.getFixedT(request, 'common');
   if (!params.token || !(await userIsRecovering(params.token))) {
     return json<ResetPasswordResponse>(
-      { errors: { message: t("recover.reset.impossible") } },
-      { status: 403 }
+      { errors: { message: t('recover.reset.impossible') } },
+      { status: 403 },
     );
   }
 
   const formData = await request.formData();
-  const fields: ResetPasswordResponse["fields"] = {
-    password: formData.get("password") as string,
-    passwordConfirmation: formData.get("passwordConfirmation") as string,
+  const fields: ResetPasswordResponse['fields'] = {
+    password: formData.get('password') as string,
+    passwordConfirmation: formData.get('passwordConfirmation') as string,
   };
 
   try {
@@ -75,7 +75,7 @@ export const action = async ({ request, params }: ActionFunctionArgs) => {
           ...acc,
           [String(error.path)]: t(error.message),
         }),
-        {}
+        {},
       );
       return json({ errors, fields }, 400);
     }
@@ -88,22 +88,22 @@ export const action = async ({ request, params }: ActionFunctionArgs) => {
 export const meta: MetaFunction<typeof loader> = ({ data }) => {
   return [
     { title: data?.meta?.title },
-    { name: "description", content: data?.meta?.description },
-    { name: "keywords", content: data?.meta?.keywords },
+    { name: 'description', content: data?.meta?.description },
+    { name: 'keywords', content: data?.meta?.keywords },
   ];
 };
 
 export default function RecoveredToken() {
   const actionData = useActionData<typeof action>();
   const loaderData = useLoaderData<typeof loader>();
-  const { t } = useTranslation("common");
-  const [values, setValues] = useState<ResetPasswordResponse["fields"]>();
+  const { t } = useTranslation('common');
+  const [values, setValues] = useState<ResetPasswordResponse['fields']>();
   const [errors, setErrors] = useState(actionData?.errors);
 
   const handleChange = (name: string, value: string) => {
     // console.log(name, value);
     setValues((prevValues) => ({
-      ...(prevValues as ResetPasswordResponse["fields"]),
+      ...(prevValues as ResetPasswordResponse['fields']),
       [name]: value,
     }));
 
@@ -129,10 +129,10 @@ export default function RecoveredToken() {
 
   return (
     <div className="flex flex-col gap-4 mx-auto w-full md:w-2/3 lg:w-1/4">
-      <h1 className="flex w-full flex-col">{t("recover.heading")}</h1>
-      {errors && errors["message" as keyof typeof errors] ? (
+      <h1 className="flex w-full flex-col">{t('recover.heading')}</h1>
+      {errors && errors['message' as keyof typeof errors] ? (
         <Card className="flex gap-4 bg-success-200" key="recover-inited">
-          <CardBody>{errors["message" as keyof typeof values]}</CardBody>
+          <CardBody>{errors['message' as keyof typeof values]}</CardBody>
         </Card>
       ) : (
         <Form method="post" className="flex w-full flex-col mb-4 gap-4">
@@ -143,12 +143,12 @@ export default function RecoveredToken() {
             type="password"
             variant="bordered"
             autoComplete="new-password"
-            value={values?.["password" as keyof typeof values] as string}
-            onChange={(e) => handleChange("password", e.target.value)}
-            {...(errors && errors["password" as keyof typeof errors]
+            value={values?.['password' as keyof typeof values] as string}
+            onChange={(e) => handleChange('password', e.target.value)}
+            {...(errors && errors['password' as keyof typeof errors]
               ? {
                   isInvalid: true,
-                  errorMessage: errors["password" as keyof typeof errors],
+                  errorMessage: errors['password' as keyof typeof errors],
                 }
               : {})}
           />
@@ -160,21 +160,21 @@ export default function RecoveredToken() {
             variant="bordered"
             autoComplete="new-password"
             value={
-              values?.["passwordConfirmation" as keyof typeof values] as string
+              values?.['passwordConfirmation' as keyof typeof values] as string
             }
             onChange={(e) =>
-              handleChange("passwordConfirmation", e.target.value)
+              handleChange('passwordConfirmation', e.target.value)
             }
-            {...(errors && errors["passwordConfirmation" as keyof typeof errors]
+            {...(errors && errors['passwordConfirmation' as keyof typeof errors]
               ? {
                   isInvalid: true,
                   errorMessage:
-                    errors["passwordConfirmation" as keyof typeof errors],
+                    errors['passwordConfirmation' as keyof typeof errors],
                 }
               : {})}
           />
           <Button type="submit" color="primary" size="lg" data-testid="submit">
-            {t("recover.label")}
+            {t('recover.label')}
           </Button>
         </Form>
       )}

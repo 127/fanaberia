@@ -3,9 +3,9 @@
  * It includes functions for retrieving, creating, and updating pages. The PageData interface
  * defines the structure of a page object.
  */
-import type { Page } from "@prisma/client";
-import { prisma } from "~/services/db.server";
-export type { Page } from "@prisma/client";
+import { prisma } from '~/services/db.server';
+import type { Page } from '@prisma/client';
+export type { Page } from '@prisma/client';
 
 /**
  * Interface representing the structure of page data.
@@ -31,7 +31,7 @@ export interface PageData {
  */
 export const getPageBySlug = async (
   slug: string,
-  locale?: string
+  locale?: string,
 ): Promise<Page | null> => {
   const page = await prisma.page.findFirst({
     where: { slug, locale },
@@ -52,7 +52,7 @@ export const getPages = async (locale?: string): Promise<Page[]> => {
       locale,
     },
     orderBy: {
-      id: "desc",
+      id: 'desc',
     },
   });
 

@@ -6,30 +6,30 @@ import {
   TableColumn,
   TableHeader,
   TableRow,
-} from "@nextui-org/react";
-import type { LoaderFunctionArgs } from "@remix-run/node";
-import { json } from "@remix-run/node";
-import { Link, useLoaderData } from "@remix-run/react";
-import { getAdmins } from "~/models/admin.server";
-import { authenticateUserByRole } from "~/utils/utils.server";
+} from '@nextui-org/react';
+import { Link, useLoaderData } from '@remix-run/react';
+import { authenticateUserByRole } from '~/utils/utils.server';
+import { getAdmins } from '~/models/admin.server';
+import { json } from '@remix-run/node';
+import type { LoaderFunctionArgs } from '@remix-run/node';
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
-  await authenticateUserByRole(request, "admin");
+  await authenticateUserByRole(request, 'admin');
   const admins = await getAdmins();
   return json({ admins });
 };
 
 const filtered = [
-  "reset_password_token",
-  "reset_password_sent_at",
-  "confirmation_token",
-  "password",
+  'reset_password_token',
+  'reset_password_sent_at',
+  'confirmation_token',
+  'password',
 ];
 
 export default function WarpAdminsIndex() {
   const { admins } = useLoaderData<typeof loader>();
   const cols = Object.keys(admins[0]).filter(
-    (column) => !filtered.includes(column)
+    (column) => !filtered.includes(column),
   );
 
   return (
@@ -42,8 +42,8 @@ export default function WarpAdminsIndex() {
         <TableHeader>
           {cols.map((column) => (
             <TableColumn key={column}>
-              {column.replace(/_/g, " ").charAt(0).toUpperCase() +
-                column.slice(1).replace(/_/g, " ")}
+              {column.replace(/_/g, ' ').charAt(0).toUpperCase() +
+                column.slice(1).replace(/_/g, ' ')}
             </TableColumn>
           ))}
         </TableHeader>
@@ -54,11 +54,11 @@ export default function WarpAdminsIndex() {
                 const value = admin[key as keyof typeof admin];
                 return (
                   <TableCell key={`cell-${key}`}>
-                    {key === "id" ? (
+                    {key === 'id' ? (
                       <Link className="underline" to={`${value}/show`}>
                         {value}
                       </Link>
-                    ) : key.endsWith("_at") && value ? (
+                    ) : key.endsWith('_at') && value ? (
                       new Date(value as string).toUTCString()
                     ) : (
                       (value as string)

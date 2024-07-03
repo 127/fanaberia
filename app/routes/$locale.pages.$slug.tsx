@@ -1,11 +1,11 @@
-import type { LoaderFunctionArgs, MetaFunction } from "@remix-run/node";
-import { json, useLoaderData } from "@remix-run/react";
-import { getPageBySlug } from "~/models/page.server";
+import { getPageBySlug } from '~/models/page.server';
+import { json, useLoaderData } from '@remix-run/react';
+import type { LoaderFunctionArgs, MetaFunction } from '@remix-run/node';
 
 export async function loader({ params }: LoaderFunctionArgs) {
   const page = await getPageBySlug(params.slug as string, params.locale);
   if (!page) {
-    throw new Response("Not Found", { status: 404 });
+    throw new Response('Not Found', { status: 404 });
   }
   return json({ page });
 }
@@ -13,8 +13,8 @@ export async function loader({ params }: LoaderFunctionArgs) {
 export const meta: MetaFunction<typeof loader> = ({ data }) => {
   return [
     { title: data?.page.title },
-    { name: "description", content: data?.page.description },
-    { name: "keywords", content: data?.page.keywords },
+    { name: 'description', content: data?.page.description },
+    { name: 'keywords', content: data?.page.keywords },
   ];
 };
 

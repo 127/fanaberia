@@ -3,12 +3,12 @@
  * It includes functions for creating, updating, and retrieving user data, as well as
  * handling user authentication and password recovery processes.
  */
-import type { User } from "@prisma/client";
-import bcrypt from "bcryptjs";
-import { prisma } from "~/services/db.server";
-import { generateToken } from "../utils/utils.server";
+import { generateToken } from '../utils/utils.server';
+import { prisma } from '~/services/db.server';
+import bcrypt from 'bcryptjs';
+import type { User } from '@prisma/client';
 
-export type { User } from "@prisma/client";
+export type { User } from '@prisma/client';
 
 /**
  * Interface for user data input, used for user-related operations.
@@ -27,7 +27,7 @@ export interface UserData {
  * @param {string} email - The email of the user to check.
  * @returns {Promise<boolean>} - A promise that resolves to a boolean indicating if the user exists.
  */
-export const userExists = async (email: User["email"]): Promise<boolean> => {
+export const userExists = async (email: User['email']): Promise<boolean> => {
   return prisma.user.count({ where: { email } }).then(Boolean);
 };
 
@@ -38,7 +38,7 @@ export const userExists = async (email: User["email"]): Promise<boolean> => {
  * @returns {Promise<boolean>} - A promise that resolves to a boolean indicating if the user exists and their password is recoverable.
  */
 export const userExistsAndPasswordIsRecoverable = async (
-  email: User["email"]
+  email: User['email'],
 ): Promise<boolean> => {
   return prisma.user
     .count({ where: { email, confirmation_token: null } })
@@ -52,7 +52,7 @@ export const userExistsAndPasswordIsRecoverable = async (
  * @returns {Promise<string>} - A promise that resolves to the generated token.
  */
 export const setPasswordRecoveryToken = async (
-  email: User["email"]
+  email: User['email'],
 ): Promise<string> => {
   const token: string = generateToken(20);
   await prisma.user.update({
@@ -72,7 +72,7 @@ export const setPasswordRecoveryToken = async (
  * @returns {Promise<boolean>} - A promise that resolves to a boolean indicating if the user is recovering their password.
  */
 export const userIsRecovering = async (
-  reset_password_token: User["reset_password_token"]
+  reset_password_token: User['reset_password_token'],
 ): Promise<boolean> => {
   return await prisma.user
     .count({
@@ -94,7 +94,7 @@ export const userIsRecovering = async (
  */
 export const resetPassword = async (
   reset_password_token: string,
-  password: string
+  password: string,
 ): Promise<void> => {
   const hashedPassword = await bcrypt.hash(password, 10);
   await prisma.user.update({
@@ -122,7 +122,7 @@ export const getUsers = async (): Promise<User[]> => {
  * @param {number} id - The ID of the user to retrieve.
  * @returns {Promise<User | null>} - A promise that resolves to the user or null if not found.
  */
-export const getUserById = async (id: User["id"]): Promise<User | null> => {
+export const getUserById = async (id: User['id']): Promise<User | null> => {
   return await prisma.user.findUnique({ where: { id } });
 };
 
@@ -133,7 +133,7 @@ export const getUserById = async (id: User["id"]): Promise<User | null> => {
  * @returns {Promise<User | null>} - A promise that resolves to the user or null if not found.
  */
 export const getUserByEmail = async (
-  email: User["email"]
+  email: User['email'],
 ): Promise<User | null> => {
   return await prisma.user.findUnique({ where: { email } });
 };
@@ -147,9 +147,9 @@ export const getUserByEmail = async (
  * @returns {Promise<User>} - A promise that resolves to the created user.
  */
 export const createUser = async (
-  email: User["email"],
+  email: User['email'],
   password: string,
-  current_sign_in_ip: string | null
+  current_sign_in_ip: string | null,
 ): Promise<User> => {
   const hashedPassword = await bcrypt.hash(password, 10);
 
@@ -170,7 +170,7 @@ export const createUser = async (
  * @returns {Promise<boolean>} - A promise that resolves to a boolean indicating if the user was confirmed.
  */
 export const confirmUser = async (
-  confirmation_token: string
+  confirmation_token: string,
 ): Promise<boolean> => {
   if (!confirmation_token || confirmation_token.length == 0) return false;
 
@@ -197,7 +197,7 @@ export const confirmUser = async (
  * @returns {Promise<User>} - A promise that resolves to the deleted user.
  */
 export const deleteUserByEmail = async (
-  email: User["email"]
+  email: User['email'],
 ): Promise<User> => {
   return await prisma.user.delete({ where: { email } });
 };
@@ -213,7 +213,7 @@ export const deleteUserByEmail = async (
 export const findOrCreateOauthUser = async (
   email: string,
   provider: string,
-  current_ip: string
+  current_ip: string,
 ): Promise<User> => {
   const user = await prisma.user.findUnique({
     where: { email },
@@ -228,7 +228,7 @@ export const findOrCreateOauthUser = async (
       user.id,
       user.current_sign_in_at,
       user.current_sign_in_ip,
-      current_ip
+      current_ip,
     );
     return user;
   }
@@ -256,7 +256,7 @@ export const touchUserOnSignIn = async (
   id: number,
   last_sign_in_at: Date | null,
   last_sign_in_ip: string | null,
-  current_sign_in_ip: string | null
+  current_sign_in_ip: string | null,
 ): Promise<void> => {
   // reset trials counter [sign_in_count]
   await prisma.user.update({
@@ -284,8 +284,8 @@ export const touchUserOnSignIn = async (
 export const validateFormUser = async (
   email: string,
   password: string,
-  current_ip: string
-): Promise<Omit<User, "password"> | null> => {
+  current_ip: string,
+): Promise<Omit<User, 'password'> | null> => {
   const userWithPassword = await prisma.user.findUnique({
     where: { email },
   });
@@ -309,7 +309,7 @@ export const validateFormUser = async (
     userWithPassword.id,
     userWithPassword.current_sign_in_at,
     userWithPassword.current_sign_in_ip, //send to last_sign_in_ip
-    current_ip
+    current_ip,
   );
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const { password: _, ...userWithoutPassword } = userWithPassword;

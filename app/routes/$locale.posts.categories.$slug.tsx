@@ -1,19 +1,19 @@
 // Progress by chapter is written only after all tests are done
-import type { LoaderFunctionArgs, MetaFunction } from "@remix-run/node";
-import { json, Link, useLoaderData, useNavigate } from "@remix-run/react";
-import { Card, CardBody, CardHeader, Pagination } from "@nextui-org/react";
-import { getPaginatedPostsByCategory } from "~/models/post.server";
-import { getCategoryBySlug } from "~/models/category.server";
-import { useTranslation } from "react-i18next";
+import { Card, CardBody, CardHeader, Pagination } from '@nextui-org/react';
+import { Link, json, useLoaderData, useNavigate } from '@remix-run/react';
+import { getCategoryBySlug } from '~/models/category.server';
+import { getPaginatedPostsByCategory } from '~/models/post.server';
+import { useTranslation } from 'react-i18next';
+import type { LoaderFunctionArgs, MetaFunction } from '@remix-run/node';
 
 export const loader = async ({ request, params }: LoaderFunctionArgs) => {
   const cat = await getCategoryBySlug(params.slug as string, params.locale);
   if (!cat) {
-    throw new Response("Not Found", { status: 404 });
+    throw new Response('Not Found', { status: 404 });
   }
 
   const url = new URL(request.url);
-  const page = parseInt(url.searchParams.get("page") || "1", 10);
+  const page = parseInt(url.searchParams.get('page') || '1', 10);
   const { posts, totalPages } = await getPaginatedPostsByCategory(page, cat.id);
 
   return json({ posts, currentPage: page, totalPages, cat });
@@ -22,13 +22,13 @@ export const loader = async ({ request, params }: LoaderFunctionArgs) => {
 export const meta: MetaFunction<typeof loader> = ({ data }) => {
   return [
     { title: data?.cat.title },
-    { name: "description", content: data?.cat.description },
-    { name: "keywords", content: data?.cat.keywords },
+    { name: 'description', content: data?.cat.description },
+    { name: 'keywords', content: data?.cat.keywords },
   ];
 };
 
 export default function PostsCategories() {
-  const { i18n } = useTranslation("common");
+  const { i18n } = useTranslation('common');
   const navigate = useNavigate();
   const { posts, currentPage, totalPages, cat } =
     useLoaderData<typeof loader>();
@@ -38,14 +38,12 @@ export default function PostsCategories() {
       <h1 className="font-bold text-2xl">{cat.heading}</h1>
       <div
         className="grid grid-cols-1 gap-4 md:grid-cols-3 my-5"
-        data-testid="posts-list"
-      >
+        data-testid="posts-list">
         {posts.map((post) => (
           <Card key={post.id} className="py-4">
             <CardHeader
               className="pb-0 pt-2 px-4 flex-col items-start"
-              data-testid="posts-card-header"
-            >
+              data-testid="posts-card-header">
               <h2 className="font-bold text-lg underline">
                 <Link to={`/${i18n.language}/posts/${post.slug}`}>
                   {post.heading}
@@ -53,11 +51,11 @@ export default function PostsCategories() {
               </h2>
               <time className="text-sm text-default-500">
                 {new Date(post.created_at).toLocaleDateString(i18n.language, {
-                  year: "numeric",
-                  month: "long",
-                  day: "numeric",
-                  hour: "2-digit",
-                  minute: "2-digit",
+                  year: 'numeric',
+                  month: 'long',
+                  day: 'numeric',
+                  hour: '2-digit',
+                  minute: '2-digit',
                 })}
               </time>
             </CardHeader>

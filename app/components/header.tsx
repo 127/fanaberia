@@ -1,35 +1,35 @@
-import React, { useState } from "react";
 import {
-  Navbar,
-  NavbarBrand,
-  NavbarMenuToggle,
-  NavbarMenuItem,
-  NavbarMenu,
-  NavbarContent,
-  NavbarItem,
+  AUTHORIZED_USER_INDEX,
+  UNAUTHORIZED_INDEX,
+} from '~/utils/utils.common';
+import {
   Button,
   Divider,
   Dropdown,
   DropdownItem,
   DropdownMenu,
   DropdownTrigger,
-} from "@nextui-org/react";
-import { Form, Link } from "@remix-run/react";
-import { useTranslation } from "react-i18next";
-import { Logo } from "~/assets/Logo";
-import DarkModeSwitcher from "./DarkModeSwitcher";
-import {
-  AUTHORIZED_USER_INDEX,
-  UNAUTHORIZED_INDEX,
-} from "~/utils/utils.common";
-import { UserIcon } from "~/assets/UserIcon";
-import LanguageSwitcher from "./LanguageSwitcher";
+  Navbar,
+  NavbarBrand,
+  NavbarContent,
+  NavbarItem,
+  NavbarMenu,
+  NavbarMenuItem,
+  NavbarMenuToggle,
+} from '@nextui-org/react';
+import { Form, Link } from '@remix-run/react';
+import { Logo } from '~/assets/Logo';
+import { UserIcon } from '~/assets/UserIcon';
+import { useTranslation } from 'react-i18next';
+import DarkModeSwitcher from './DarkModeSwitcher';
+import LanguageSwitcher from './LanguageSwitcher';
+import React, { useState } from 'react';
 
 const Header: React.FC<{ userExists: boolean; isDarkMode: boolean }> = ({
   userExists,
   isDarkMode,
 }) => {
-  const { t, i18n } = useTranslation("common");
+  const { t, i18n } = useTranslation('common');
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const toggleMenu = () => setIsMenuOpen(!isMenuOpen);
 
@@ -39,12 +39,11 @@ const Header: React.FC<{ userExists: boolean; isDarkMode: boolean }> = ({
       isBordered
       isBlurred={false}
       isMenuOpen={isMenuOpen}
-      onMenuOpenChange={setIsMenuOpen}
-    >
+      onMenuOpenChange={setIsMenuOpen}>
       <NavbarContent className="md:hidden" justify="start">
         <NavbarMenuToggle
           aria-label={
-            isMenuOpen ? t("nav.label.close.menu") : t("nav.label.open.menu")
+            isMenuOpen ? t('nav.label.close.menu') : t('nav.label.open.menu')
           }
         />
       </NavbarContent>
@@ -55,10 +54,10 @@ const Header: React.FC<{ userExists: boolean; isDarkMode: boolean }> = ({
             <Logo
               width={30}
               height={30}
-              fill={isDarkMode ? "#000" : "#fff"}
+              fill={isDarkMode ? '#000' : '#fff'}
               className="me-2 bg-black dark:bg-white"
             />
-            <span className="font-bold text-inherit">{t("brand")}</span>
+            <span className="font-bold text-inherit">{t('brand')}</span>
           </Link>
         </NavbarBrand>
       </NavbarContent>
@@ -67,29 +66,27 @@ const Header: React.FC<{ userExists: boolean; isDarkMode: boolean }> = ({
         <NavbarBrand>
           <Link
             to={UNAUTHORIZED_INDEX}
-            className="flex flex-row text-foreground items-center"
-          >
+            className="flex flex-row text-foreground items-center">
             <Logo
               width={30}
               height={30}
-              fill={isDarkMode ? "#000" : "#fff"}
+              fill={isDarkMode ? '#000' : '#fff'}
               className="me-2 bg-black dark:bg-white"
             />
-            <span className="font-bold text-inherit">{t("brand")}</span>
+            <span className="font-bold text-inherit">{t('brand')}</span>
           </Link>
         </NavbarBrand>
 
         <NavbarItem>
           <Link color="foreground" to={UNAUTHORIZED_INDEX}>
-            {t("nav.label.home")}
+            {t('nav.label.home')}
           </Link>
         </NavbarItem>
         {userExists && (
           <NavbarItem>
             <Link
               className="text-primary dark:text-warning-500"
-              to={AUTHORIZED_USER_INDEX}
-            >
+              to={AUTHORIZED_USER_INDEX}>
               Some menu
             </Link>
           </NavbarItem>
@@ -102,7 +99,7 @@ const Header: React.FC<{ userExists: boolean; isDarkMode: boolean }> = ({
         </NavbarItem> */}
         <NavbarItem>
           <Link color="foreground" to={`/${i18n.language}/posts`}>
-            {t("nav.label.blog")}
+            {t('nav.label.blog')}
           </Link>
         </NavbarItem>
       </NavbarContent>
@@ -114,7 +111,7 @@ const Header: React.FC<{ userExists: boolean; isDarkMode: boolean }> = ({
               <DropdownTrigger>
                 <Button variant="light">
                   <UserIcon />
-                  {t("nav.label.profile")}
+                  {t('nav.label.profile')}
                 </Button>
               </DropdownTrigger>
               <DropdownMenu aria-label="Static Actions">
@@ -126,9 +123,8 @@ const Header: React.FC<{ userExists: boolean; isDarkMode: boolean }> = ({
                     <Button
                       type="submit"
                       className="w-full"
-                      data-testid="desktop-sign-out-button"
-                    >
-                      {t("sign.out.label")}
+                      data-testid="desktop-sign-out-button">
+                      {t('sign.out.label')}
                     </Button>
                   </Form>
                 </DropdownItem>
@@ -138,7 +134,7 @@ const Header: React.FC<{ userExists: boolean; isDarkMode: boolean }> = ({
         ) : (
           <>
             <NavbarItem className="hidden md:flex">
-              <Link to="/auth/sign-in">{t("sign.in.label")}</Link>
+              <Link to="/auth/sign-in">{t('sign.in.label')}</Link>
             </NavbarItem>
             <NavbarItem>
               <Button
@@ -146,9 +142,8 @@ const Header: React.FC<{ userExists: boolean; isDarkMode: boolean }> = ({
                 color="warning"
                 to="/auth/sign-up"
                 variant="flat"
-                reloadDocument
-              >
-                {t("sign.up.label")}
+                reloadDocument>
+                {t('sign.up.label')}
               </Button>
             </NavbarItem>
             <Divider orientation="vertical" className="hidden md:flex" />
@@ -165,10 +160,9 @@ const Header: React.FC<{ userExists: boolean; isDarkMode: boolean }> = ({
       <NavbarMenu>
         <NavbarMenuItem
           key="mnu-home"
-          className=" flex flex-row justify-between"
-        >
+          className=" flex flex-row justify-between">
           <Link color="foreground" to={UNAUTHORIZED_INDEX} onClick={toggleMenu}>
-            {t("nav.label.home")}
+            {t('nav.label.home')}
           </Link>
           <span>
             <DarkModeSwitcher isDarkMode={isDarkMode} />
@@ -198,9 +192,8 @@ const Header: React.FC<{ userExists: boolean; isDarkMode: boolean }> = ({
           <Link
             color="foreground"
             to={`/${i18n.language}/posts`}
-            onClick={toggleMenu}
-          >
-            {t("nav.label.blog")}
+            onClick={toggleMenu}>
+            {t('nav.label.blog')}
           </Link>
         </NavbarMenuItem>
         <Divider />
@@ -212,9 +205,8 @@ const Header: React.FC<{ userExists: boolean; isDarkMode: boolean }> = ({
                 color="danger"
                 className="w-full"
                 size="lg"
-                onClick={toggleMenu}
-              >
-                {t("sign.out.label")}
+                onClick={toggleMenu}>
+                {t('sign.out.label')}
               </Button>
             </Form>
           </NavbarMenuItem>
@@ -225,9 +217,8 @@ const Header: React.FC<{ userExists: boolean; isDarkMode: boolean }> = ({
                 color="foreground"
                 className="w-full"
                 to="/auth/sign-in"
-                onClick={toggleMenu}
-              >
-                {t("sign.in.label")}
+                onClick={toggleMenu}>
+                {t('sign.in.label')}
               </Link>
             </NavbarMenuItem>
             <NavbarMenuItem key="mnu-sign-up">
@@ -236,9 +227,8 @@ const Header: React.FC<{ userExists: boolean; isDarkMode: boolean }> = ({
                 className="w-full"
                 to="/auth/sign-up"
                 onClick={toggleMenu}
-                reloadDocument
-              >
-                {t("sign.up.label")}
+                reloadDocument>
+                {t('sign.up.label')}
               </Link>
             </NavbarMenuItem>
           </>

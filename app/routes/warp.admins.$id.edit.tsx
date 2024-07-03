@@ -1,34 +1,34 @@
-import { json, redirect } from "@remix-run/node";
-import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
-import { useLoaderData, Link, Form, useActionData } from "@remix-run/react";
-import { AdminData, getAdminById, updateAdmin } from "~/models/admin.server";
-import { Button, Input } from "@nextui-org/react";
-import { authenticateUserByRole } from "~/utils/utils.server";
-import { useState, useEffect } from "react";
-import adminValidaionSchema from "~/validators/adminValidationSchema";
-import * as yup from "yup";
-import { useTranslation } from "react-i18next";
+import * as yup from 'yup';
+import { AdminData, getAdminById, updateAdmin } from '~/models/admin.server';
+import { Button, Input } from '@nextui-org/react';
+import { Form, Link, useActionData, useLoaderData } from '@remix-run/react';
+import { authenticateUserByRole } from '~/utils/utils.server';
+import { json, redirect } from '@remix-run/node';
+import { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import adminValidaionSchema from '~/validators/adminValidationSchema';
+import type { ActionFunctionArgs, LoaderFunctionArgs } from '@remix-run/node';
 
 export const loader = async ({ request, params }: LoaderFunctionArgs) => {
-  await authenticateUserByRole(request, "admin");
+  await authenticateUserByRole(request, 'admin');
   if (!params.id) {
-    throw new Response("Not Found", { status: 404 });
+    throw new Response('Not Found', { status: 404 });
   }
   const admin = await getAdminById(Number(params.id));
   if (!admin) {
-    throw new Response("Not Found", { status: 404 });
+    throw new Response('Not Found', { status: 404 });
   }
   return json({ admin });
 };
 
 export const action = async ({ request, params }: ActionFunctionArgs) => {
-  await authenticateUserByRole(request, "admin");
+  await authenticateUserByRole(request, 'admin');
   const formData = await request.formData();
 
   const fields: AdminData = {
-    email: formData.get("email") as string,
-    password: formData.get("password") as string,
-    passwordConfirmation: formData.get("passwordConfirmation") as string,
+    email: formData.get('email') as string,
+    password: formData.get('password') as string,
+    passwordConfirmation: formData.get('passwordConfirmation') as string,
   };
 
   try {
@@ -40,7 +40,7 @@ export const action = async ({ request, params }: ActionFunctionArgs) => {
           ...acc,
           [String(error.path)]: error.message,
         }),
-        {}
+        {},
       );
       // console.log(errors);
       return json({ errors, fields });
@@ -52,16 +52,16 @@ export const action = async ({ request, params }: ActionFunctionArgs) => {
     await updateAdmin(
       Number(params.id),
       fields.email,
-      fields.password as string
+      fields.password as string,
     );
     return redirect(`/warp/admins/${params.id}/show`);
   } catch (error) {
-    return json({ errors: { common: "DB error" }, fields });
+    return json({ errors: { common: 'DB error' }, fields });
   }
 };
 
 export default function WarpAdminsEdit() {
-  const { t } = useTranslation("common");
+  const { t } = useTranslation('common');
   const { admin } = useLoaderData<typeof loader>();
   const actionData = useActionData<typeof action>();
   const [values, setValues] = useState<AdminData>();
@@ -96,55 +96,55 @@ export default function WarpAdminsEdit() {
         <Input
           isRequired
           type="text"
-          label={t("commom.label.email")}
+          label={t('commom.label.email')}
           name="email"
           variant="bordered"
           autoComplete="username email"
           value={
-            (values?.["email" as keyof typeof values] as string) ?? admin.email
+            (values?.['email' as keyof typeof values] as string) ?? admin.email
           }
-          onChange={(e) => handleChange("email", e.target.value)}
-          {...(errors && errors["email" as keyof typeof errors]
+          onChange={(e) => handleChange('email', e.target.value)}
+          {...(errors && errors['email' as keyof typeof errors]
             ? {
                 isInvalid: true,
-                errorMessage: t(errors["email" as keyof typeof errors]),
+                errorMessage: t(errors['email' as keyof typeof errors]),
               }
             : {})}
         />
         <Input
           isRequired
-          label={t("commom.label.password")}
+          label={t('commom.label.password')}
           name="password"
           type="password"
           variant="bordered"
           autoComplete="new-password"
-          value={(values?.["password" as keyof typeof values] as string) ?? ""}
-          onChange={(e) => handleChange("password", e.target.value)}
-          {...(errors && errors["password" as keyof typeof errors]
+          value={(values?.['password' as keyof typeof values] as string) ?? ''}
+          onChange={(e) => handleChange('password', e.target.value)}
+          {...(errors && errors['password' as keyof typeof errors]
             ? {
                 isInvalid: true,
-                errorMessage: t(errors["password" as keyof typeof errors]),
+                errorMessage: t(errors['password' as keyof typeof errors]),
               }
             : {})}
         />
         <Input
           isRequired
-          label={t("sign.up.label.password.confirmation")}
+          label={t('sign.up.label.password.confirmation')}
           type="password"
           name="passwordConfirmation"
           variant="bordered"
           autoComplete="new-password"
           value={
             (values?.[
-              "passwordConfirmation" as keyof typeof values
-            ] as string) ?? ""
+              'passwordConfirmation' as keyof typeof values
+            ] as string) ?? ''
           }
-          onChange={(e) => handleChange("passwordConfirmation", e.target.value)}
-          {...(errors && errors["passwordConfirmation" as keyof typeof errors]
+          onChange={(e) => handleChange('passwordConfirmation', e.target.value)}
+          {...(errors && errors['passwordConfirmation' as keyof typeof errors]
             ? {
                 isInvalid: true,
                 errorMessage: t(
-                  errors["passwordConfirmation" as keyof typeof errors]
+                  errors['passwordConfirmation' as keyof typeof errors],
                 ),
               }
             : {})}

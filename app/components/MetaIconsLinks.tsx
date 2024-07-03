@@ -1,8 +1,8 @@
-import { useLocation } from "@remix-run/react";
-import { AUTHORIZED_ADMIN_INDEX } from "~/utils/utils.common";
+import { AUTHORIZED_ADMIN_INDEX } from '~/utils/utils.common';
+import { useLocation } from '@remix-run/react';
 
 type MetaIconsLinksProps = {
-  env: "development" | "production" | "test";
+  env: 'development' | 'production' | 'test';
 };
 const MetaIconsLinks = ({ env }: MetaIconsLinksProps): JSX.Element => {
   const location = useLocation();
@@ -10,19 +10,17 @@ const MetaIconsLinks = ({ env }: MetaIconsLinksProps): JSX.Element => {
   // console.log("Current environment: ", env);
   return (
     <>
-      {env === "production" && !isWarp ? (
+      {env === 'production' && !isWarp ? (
         <>
           <script
             async
-            src="https://www.googletagmanager.com/gtag/js?id=G-YOUR_ID"
-          ></script>
+            src="https://www.googletagmanager.com/gtag/js?id=G-YOUR_ID"></script>
           <script
             dangerouslySetInnerHTML={{
               __html: `
               <!--GOOGLE TAG CODE  HERE-->
           `,
-            }}
-          ></script>
+            }}></script>
         </>
       ) : null}
       <meta charSet="utf-8" />
