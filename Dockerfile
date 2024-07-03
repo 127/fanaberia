@@ -1,5 +1,5 @@
 # base node image
-FROM node:21.7.3-alpine3.18 as base
+FROM node:22.4.0-alpine3.19 as base
 
 ENV NODE_ENV production
 RUN apk update && apk --no-cache add tzdata icu-data-full build-base postgresql-dev
