@@ -1,26 +1,26 @@
-import { Button, Divider, Image } from "@nextui-org/react";
-import { json, LoaderFunctionArgs } from "@remix-run/node";
-import { Link, useLoaderData } from "@remix-run/react";
-import { getFileById } from "~/models/file.server";
-import { authenticateUserByRole } from "~/utils/utils.server";
+import { Button, Divider, Image } from '@nextui-org/react';
+import { Link, useLoaderData } from '@remix-run/react';
+import { LoaderFunctionArgs, json } from '@remix-run/node';
+import { authenticateUserByRole } from '~/utils/utils.server';
+import { getFileById } from '~/models/file.server';
 
 export const loader = async ({ request, params }: LoaderFunctionArgs) => {
-  await authenticateUserByRole(request, "admin");
+  await authenticateUserByRole(request, 'admin');
   if (!params.id) {
-    throw new Response("Not Found", { status: 404 });
+    throw new Response('Not Found', { status: 404 });
   }
 
   const file = await getFileById(Number(params.id));
   if (!file) {
-    throw new Response("Not Found", { status: 404 });
+    throw new Response('Not Found', { status: 404 });
   }
 
   return json({ file });
 };
 
 const inputs =
-  "name,alt,title,path,mime_type,size,created_at,updated_at,admin_id".split(
-    ","
+  'name,alt,title,path,mime_type,size,created_at,updated_at,admin_id'.split(
+    ',',
   );
 
 export default function WarpFilesShow() {
@@ -40,8 +40,8 @@ export default function WarpFilesShow() {
       <Image src={`/storage/${file.name}`} />
       {inputs.map((name) => (
         <p key={name}>
-          <b>{name}:</b>{" "}
-          {name.endsWith("_at")
+          <b>{name}:</b>{' '}
+          {name.endsWith('_at')
             ? new Date(file[name as keyof typeof file] as string).toUTCString()
             : file[name as keyof typeof file]}
         </p>
@@ -51,8 +51,7 @@ export default function WarpFilesShow() {
         as={Link}
         to={`/warp/files/${file.id}/delete`}
         color="danger"
-        className="w-12"
-      >
+        className="w-12">
         Delete
       </Button>
     </div>

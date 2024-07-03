@@ -1,39 +1,39 @@
-import type {
-  ActionFunctionArgs,
-  LoaderFunctionArgs,
-  NodeOnDiskFile,
-} from "@remix-run/node";
+import { Button, Input } from '@nextui-org/react';
+import { Form, Link } from '@remix-run/react';
+import { authenticateUserByRole, uploadHandler } from '~/utils/utils.server';
+import { createFile } from '~/models/file.server';
 import {
   json,
   redirect,
   unstable_parseMultipartFormData,
-} from "@remix-run/node";
-import { Form, Link } from "@remix-run/react";
-import { Button, Input } from "@nextui-org/react";
-import { createFile } from "~/models/file.server";
-import { authenticateUserByRole, uploadHandler } from "~/utils/utils.server";
+} from '@remix-run/node';
+import type {
+  ActionFunctionArgs,
+  LoaderFunctionArgs,
+  NodeOnDiskFile,
+} from '@remix-run/node';
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
-  await authenticateUserByRole(request, "admin");
+  await authenticateUserByRole(request, 'admin');
   return json({});
 };
 
 export const action = async ({ request }: ActionFunctionArgs) => {
-  const admin = await authenticateUserByRole(request, "admin");
+  const admin = await authenticateUserByRole(request, 'admin');
 
   const formData = await unstable_parseMultipartFormData(
     request,
-    uploadHandler
+    uploadHandler,
   );
 
-  const file = formData.get("file") as NodeOnDiskFile;
+  const file = formData.get('file') as NodeOnDiskFile;
   if (!file) {
-    throw new Error("File not uploaded!");
+    throw new Error('File not uploaded!');
   }
 
   const newFile = await createFile({
-    alt: formData.get("alt") as string,
-    title: formData.get("title") as string,
+    alt: formData.get('alt') as string,
+    title: formData.get('title') as string,
     admin_id: admin.id,
     name: file.name,
     mime_type: file.type,
@@ -44,7 +44,7 @@ export const action = async ({ request }: ActionFunctionArgs) => {
   return redirect(`/warp/files/${newFile.id}/show`);
 };
 
-const inputs = "alt,title".split(",");
+const inputs = 'alt,title'.split(',');
 
 export default function WarpFilesNew() {
   return (
@@ -56,8 +56,7 @@ export default function WarpFilesNew() {
       <Form
         method="post"
         className="flex w-full flex-col mb-4 gap-4"
-        encType="multipart/form-data"
-      >
+        encType="multipart/form-data">
         {inputs.map((name) => (
           <Input
             key={`input-${name}`}

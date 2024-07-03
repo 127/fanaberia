@@ -1,21 +1,21 @@
-import { Button } from "@nextui-org/react";
-import { json, LoaderFunctionArgs } from "@remix-run/node";
-import { Link, useLoaderData } from "@remix-run/react";
-import { getCategoryById } from "~/models/category.server";
-import { Post } from "~/models/post.server";
-import { capitalizeFirstLetter } from "~/utils/utils.common";
-import { authenticateUserByRole } from "~/utils/utils.server";
+import { Button } from '@nextui-org/react';
+import { Link, useLoaderData } from '@remix-run/react';
+import { LoaderFunctionArgs, json } from '@remix-run/node';
+import { Post } from '~/models/post.server';
+import { authenticateUserByRole } from '~/utils/utils.server';
+import { capitalizeFirstLetter } from '~/utils/utils.common';
+import { getCategoryById } from '~/models/category.server';
 
 // Loader: Загружаем данные курса
 export const loader = async ({ request, params }: LoaderFunctionArgs) => {
-  await authenticateUserByRole(request, "admin");
+  await authenticateUserByRole(request, 'admin');
   if (!params.id) {
-    throw new Response("Not Found", { status: 404 });
+    throw new Response('Not Found', { status: 404 });
   }
 
   const category = await getCategoryById(Number(params.id));
   if (!category) {
-    throw new Response("Not Found", { status: 404 });
+    throw new Response('Not Found', { status: 404 });
   }
 
   return json({ category });
@@ -35,8 +35,7 @@ export default function WarpCategoriesShow() {
         <Button
           as={Link}
           color="primary"
-          to={`/warp/categories/${category.id}/edit`}
-        >
+          to={`/warp/categories/${category.id}/edit`}>
           Edit
         </Button>
       </div>
@@ -44,13 +43,13 @@ export default function WarpCategoriesShow() {
         const value = category[key as keyof typeof category];
         let cellValue;
         switch (key) {
-          case "posts":
+          case 'posts':
             cellValue = <span>{(value as unknown as Post[]).length}</span>;
             break;
           default:
             cellValue = (
               <span>
-                {key.endsWith("_at") && value
+                {key.endsWith('_at') && value
                   ? new Date(value as string).toUTCString()
                   : (value as string)}
               </span>

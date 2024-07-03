@@ -1,48 +1,48 @@
+import { Button, Image, Input } from '@nextui-org/react';
+import { Form, Link, useLoaderData } from '@remix-run/react';
+import { authenticateUserByRole, uploadHandler } from '~/utils/utils.server';
+import { getFileById, updateFile } from '~/models/file.server';
 import {
   json,
   redirect,
   unstable_parseMultipartFormData,
-} from "@remix-run/node";
+} from '@remix-run/node';
 import type {
   ActionFunctionArgs,
   LoaderFunctionArgs,
   NodeOnDiskFile,
-} from "@remix-run/node";
-import { useLoaderData, Link, Form } from "@remix-run/react";
-import { Button, Image, Input } from "@nextui-org/react";
-import { getFileById, updateFile } from "~/models/file.server";
-import { authenticateUserByRole, uploadHandler } from "~/utils/utils.server";
+} from '@remix-run/node';
 
 export const loader = async ({ request, params }: LoaderFunctionArgs) => {
-  await authenticateUserByRole(request, "admin");
+  await authenticateUserByRole(request, 'admin');
   if (!params.id) {
-    throw new Response("Not Found", { status: 404 });
+    throw new Response('Not Found', { status: 404 });
   }
   const file = await getFileById(Number(params.id));
   if (!file) {
-    throw new Response("Not Found", { status: 404 });
+    throw new Response('Not Found', { status: 404 });
   }
   return json({ file });
 };
 
 export const action = async ({ request, params }: ActionFunctionArgs) => {
-  const admin = await authenticateUserByRole(request, "admin");
+  const admin = await authenticateUserByRole(request, 'admin');
   const formData = await unstable_parseMultipartFormData(
     request,
-    uploadHandler
+    uploadHandler,
   );
 
-  const file = formData.get("file") as NodeOnDiskFile;
+  const file = formData.get('file') as NodeOnDiskFile;
   if (file.size === 0) {
     await updateFile(Number(params.id), {
-      alt: formData.get("alt") as string,
-      title: formData.get("title") as string,
+      alt: formData.get('alt') as string,
+      title: formData.get('title') as string,
       admin_id: admin.id,
     });
   } else {
     await updateFile(Number(params.id), {
-      alt: formData.get("alt") as string,
-      title: formData.get("title") as string,
+      alt: formData.get('alt') as string,
+      title: formData.get('title') as string,
       admin_id: admin.id,
       name: file.name,
       mime_type: file.type,
@@ -53,7 +53,7 @@ export const action = async ({ request, params }: ActionFunctionArgs) => {
   return redirect(`/warp/files/${params.id}/show`);
 };
 
-const inputs = "alt,title".split(",");
+const inputs = 'alt,title'.split(',');
 
 export default function WarpFilesEdit() {
   const { file } = useLoaderData<typeof loader>();
@@ -68,8 +68,7 @@ export default function WarpFilesEdit() {
       <Form
         method="post"
         className="flex w-full flex-col mb-4 gap-4"
-        encType="multipart/form-data"
-      >
+        encType="multipart/form-data">
         <Image src={`/storage/${file.name}`} />
         {inputs.map((name) => (
           <Input
@@ -79,7 +78,7 @@ export default function WarpFilesEdit() {
             name={name}
             label={name}
             type="text"
-            defaultValue={String(file[name as keyof typeof file]) ?? ""}
+            defaultValue={String(file[name as keyof typeof file]) ?? ''}
             className="w-full"
           />
         ))}

@@ -1,22 +1,22 @@
 /**
  * @fileoverview This helper is will be used by Remix only at a server-side due to .server.ts extension Remix convention.
  */
-import { redirect } from "@remix-run/react";
-import invariant from "tiny-invariant";
-import { isIP } from "is-ip";
-import postmark from "postmark";
-import * as fs from "fs";
-import { authenticator } from "~/services/auth.server";
+import * as fs from 'fs';
 import {
-  AUTHORIZED_USER_INDEX,
   AUTHENTICATION_FAILURE_PATHS,
   AUTHORIZED_ADMIN_INDEX,
-} from "./utils.common";
+  AUTHORIZED_USER_INDEX,
+} from './utils.common';
+import { authenticator } from '~/services/auth.server';
+import { isIP } from 'is-ip';
+import { redirect } from '@remix-run/react';
 import {
   unstable_composeUploadHandlers,
   unstable_createFileUploadHandler,
   unstable_createMemoryUploadHandler,
-} from "@remix-run/node";
+} from '@remix-run/node';
+import invariant from 'tiny-invariant';
+import postmark from 'postmark';
 
 export type ResponseError = {
   meta?: {
@@ -42,13 +42,13 @@ export type ResponseError = {
  */
 export const safeRedirect = (
   to: FormDataEntryValue | string | null | undefined,
-  defaultRedirect: string = AUTHORIZED_USER_INDEX
+  defaultRedirect: string = AUTHORIZED_USER_INDEX,
 ) => {
-  if (!to || typeof to !== "string") {
+  if (!to || typeof to !== 'string') {
     return defaultRedirect;
   }
 
-  if (!to.startsWith("/") || to.startsWith("//")) {
+  if (!to.startsWith('/') || to.startsWith('//')) {
     return defaultRedirect;
   }
 
@@ -56,9 +56,9 @@ export const safeRedirect = (
 };
 
 export const generateToken = (length: number) => {
-  let result = "";
+  let result = '';
   const characters =
-    "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+    'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
   const charactersLength = characters.length;
   for (let i = 0; i < length; i++) {
     result += characters.charAt(Math.floor(Math.random() * charactersLength));
@@ -69,10 +69,10 @@ export const generateToken = (length: number) => {
 export const sendEmail = async (
   To: string,
   Subject: string,
-  HtmlBody: string
+  HtmlBody: string,
 ) => {
-  invariant(process.env.POSTMARK_API_KEY, "POSTMARK_API_KEY must be set");
-  invariant(process.env.CONTACT_FORM_EMAIL, "CONTACT_FORM_EMAIL must be set");
+  invariant(process.env.POSTMARK_API_KEY, 'POSTMARK_API_KEY must be set');
+  invariant(process.env.CONTACT_FORM_EMAIL, 'CONTACT_FORM_EMAIL must be set');
   const client = new postmark.ServerClient(process.env.POSTMARK_API_KEY);
 
   await client.sendEmail({
@@ -84,20 +84,20 @@ export const sendEmail = async (
 };
 
 const headerNames = Object.freeze([
-  "X-Client-IP",
-  "X-Forwarded-For",
-  "HTTP-X-Forwarded-For",
-  "Fly-Client-IP",
-  "CF-Connecting-IP",
-  "Fastly-Client-Ip",
-  "True-Client-Ip",
-  "X-Real-IP",
-  "X-Cluster-Client-IP",
-  "X-Forwarded",
-  "Forwarded-For",
-  "Forwarded",
-  "DO-Connecting-IP" /** Digital ocean app platform */,
-  "oxygen-buyer-ip" /** Shopify oxygen platform */,
+  'X-Client-IP',
+  'X-Forwarded-For',
+  'HTTP-X-Forwarded-For',
+  'Fly-Client-IP',
+  'CF-Connecting-IP',
+  'Fastly-Client-Ip',
+  'True-Client-Ip',
+  'X-Real-IP',
+  'X-Cluster-Client-IP',
+  'X-Forwarded',
+  'Forwarded-For',
+  'Forwarded',
+  'DO-Connecting-IP' /** Digital ocean app platform */,
+  'oxygen-buyer-ip' /** Shopify oxygen platform */,
 ] as const);
 
 export const getClientIPAddress = (r: Request): string | null => {
@@ -105,11 +105,11 @@ export const getClientIPAddress = (r: Request): string | null => {
   const ipAddress = headerNames
     .flatMap((headerName) => {
       const value = headers.get(headerName);
-      if (headerName === "Forwarded") {
+      if (headerName === 'Forwarded') {
         return parseForwardedHeader(value);
       }
-      if (!value?.includes(",")) return value;
-      return value.split(",").map((ip) => ip.trim());
+      if (!value?.includes(',')) return value;
+      return value.split(',').map((ip) => ip.trim());
     })
     .find((ip) => {
       if (ip === null) return false;
@@ -121,8 +121,8 @@ export const getClientIPAddress = (r: Request): string | null => {
 
 const parseForwardedHeader = (value: string | null): string | null => {
   if (!value) return null;
-  for (const part of value.split(";")) {
-    if (part.startsWith("for=")) return part.slice(4);
+  for (const part of value.split(';')) {
+    if (part.startsWith('for=')) return part.slice(4);
     continue;
   }
   return null;
@@ -130,7 +130,7 @@ const parseForwardedHeader = (value: string | null): string | null => {
 
 export const authenticateUserByRole = async (
   request: Request,
-  role: "user" | "admin"
+  role: 'user' | 'admin',
 ) => {
   const user = await authenticator.isAuthenticated(request, {
     failureRedirect: AUTHENTICATION_FAILURE_PATHS[role],
@@ -141,11 +141,11 @@ export const authenticateUserByRole = async (
     throw redirect(AUTHENTICATION_FAILURE_PATHS[role]);
   }
 
-  const isAdmin: boolean = !("sign_in_count" in user);
-  if (!isAdmin && role === "admin") {
+  const isAdmin: boolean = !('sign_in_count' in user);
+  if (!isAdmin && role === 'admin') {
     throw redirect(AUTHORIZED_USER_INDEX);
   }
-  if (isAdmin && role === "user") {
+  if (isAdmin && role === 'user') {
     throw redirect(AUTHORIZED_ADMIN_INDEX);
   }
   return user;
@@ -153,7 +153,7 @@ export const authenticateUserByRole = async (
 
 const MAX_FILE_SIZE = 1024 * 1024 * 10; // 10MB in bytes
 
-invariant(process.env.FILES_STORAGE_PATH, "FILES_STORAGE_PATH must be set");
+invariant(process.env.FILES_STORAGE_PATH, 'FILES_STORAGE_PATH must be set');
 export const uploadHandler = unstable_composeUploadHandlers(
   unstable_createFileUploadHandler({
     directory: process.env.FILES_STORAGE_PATH,
@@ -161,7 +161,7 @@ export const uploadHandler = unstable_composeUploadHandlers(
     file: ({ filename }: { filename: string }) => filename,
   }),
   // parse everything else into memory
-  unstable_createMemoryUploadHandler()
+  unstable_createMemoryUploadHandler(),
 );
 
 export const fileExists = async (filePath: string): Promise<boolean> => {
@@ -184,19 +184,19 @@ export const fileExists = async (filePath: string): Promise<boolean> => {
  * @throws Will throw an error if `RECAPTCHA_SITE_KEY` is not set in the environment variables.
  */
 export const validateCaptcha = async (
-  recaptchaValue: FormDataEntryValue | null
+  recaptchaValue: FormDataEntryValue | null,
 ): Promise<{ [key: string]: string | boolean }> => {
-  invariant(process.env.RECAPTCHA_SITE_KEY, "RECAPTCHA_SITE_KEY must be set");
+  invariant(process.env.RECAPTCHA_SITE_KEY, 'RECAPTCHA_SITE_KEY must be set');
 
-  if (process.env.NODE_ENV !== "production") return { success: true };
+  if (process.env.NODE_ENV !== 'production') return { success: true };
 
   const captchaResponse = await fetch(
-    "https://www.google.com/recaptcha/api/siteverify",
+    'https://www.google.com/recaptcha/api/siteverify',
     {
-      method: "POST",
-      headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
       body: `secret=${process.env.RECAPTCHA_SECRET_KEY}&response=${recaptchaValue}`,
-    }
+    },
   );
 
   return await captchaResponse.json();

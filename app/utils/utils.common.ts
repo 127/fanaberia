@@ -1,19 +1,19 @@
 /**
  * @fileoverview This helper is will be used by Remix at both a server- and client-side.
  */
-export const UNAUTHORIZED_INDEX = "/";
-export const AUTHORIZED_USER_INDEX = "/";
-export const AUTHORIZED_ADMIN_INDEX = "/warp";
+export const UNAUTHORIZED_INDEX = '/';
+export const AUTHORIZED_USER_INDEX = '/';
+export const AUTHORIZED_ADMIN_INDEX = '/warp';
 export const AUTHENTICATION_FAILURE_PATHS = {
-  admin: "/warp/sign-in",
-  user: "/auth/sign-in",
+  admin: '/warp/sign-in',
+  user: '/auth/sign-in',
 };
-export const SIGNUP_USER_PATH = "/auth/sign-up";
+export const SIGNUP_USER_PATH = '/auth/sign-up';
 
 export const localeFlagDictionary: { [key: string]: string[] } = {
-  en: ["🇬🇧", "English"],
-  es: ["🇪🇸", "Español"],
-  ru: ["🇷🇺", "Русский"],
+  en: ['🇬🇧', 'English'],
+  es: ['🇪🇸', 'Español'],
+  ru: ['🇷🇺', 'Русский'],
   // "us": "🇺🇸", // Соединенные Штаты
   // "gb": "🇬🇧", // Великобритания
   // "de": "🇩🇪", // Германия

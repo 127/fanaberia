@@ -1,6 +1,5 @@
-import { cssBundleHref } from "@remix-run/css-bundle";
-import stylesheet from "~/tailwind.css?url";
-import type { LinksFunction, LoaderFunctionArgs } from "@remix-run/node";
+import { DARKMODE_DEFAULT } from './routes/api.v1.darkmode';
+import { Divider, NextUIProvider } from '@nextui-org/react';
 import {
   Link,
   Links,
@@ -11,27 +10,28 @@ import {
   isRouteErrorResponse,
   useLoaderData,
   useRouteError,
-} from "@remix-run/react";
-import { json } from "@remix-run/node";
-import { useChangeLanguage } from "remix-i18next/react";
-import i18next from "./i18next.server";
-import { Divider, NextUIProvider } from "@nextui-org/react";
-import Header from "~/components/header";
-import Footer from "~/components/footer";
-import { authenticator } from "./services/auth.server";
-import MetaIconsLinks from "./components/MetaIconsLinks";
-import { getSession } from "./services/session.server";
-import { DARKMODE_DEFAULT } from "./routes/api.v1.darkmode";
-import { Logo } from "./assets/Logo";
-import { useTranslation } from "react-i18next";
+} from '@remix-run/react';
+import { Logo } from './assets/Logo';
+import { authenticator } from './services/auth.server';
+import { cssBundleHref } from '@remix-run/css-bundle';
+import { getSession } from './services/session.server';
+import { json } from '@remix-run/node';
+import { useChangeLanguage } from 'remix-i18next/react';
+import { useTranslation } from 'react-i18next';
+import Footer from '~/components/footer';
+import Header from '~/components/header';
+import MetaIconsLinks from './components/MetaIconsLinks';
+import i18next from './i18next.server';
+import stylesheet from '~/tailwind.css?url';
+import type { LinksFunction, LoaderFunctionArgs } from '@remix-run/node';
 // new
 // export const links: LinksFunction = () => [
 //   ...(cssBundleHref ? [{ rel: "stylesheet", href: cssBundleHref }] : []),
 // ];
 
 export const links: LinksFunction = () => [
-  { rel: "stylesheet", href: stylesheet, as: "style" },
-  ...(cssBundleHref ? [{ rel: "stylesheet", href: cssBundleHref }] : []),
+  { rel: 'stylesheet', href: stylesheet, as: 'style' },
+  ...(cssBundleHref ? [{ rel: 'stylesheet', href: cssBundleHref }] : []),
 ];
 
 export const handle = {
@@ -39,15 +39,15 @@ export const handle = {
   // will need to load. This key can be a single string or an array of strings.
   // TIP: In most cases, you should set this to your defaultNS from your i18n config
   // or if you did not set one, set it to the i18next default namespace "translation"
-  i18n: "common",
+  i18n: 'common',
 };
 export const loader = async ({ request }: LoaderFunctionArgs) => {
   // console.log('loader root'); root loader is iinvoced on any child
   const user = await authenticator.isAuthenticated(request);
-  const session = await getSession(request.headers.get("Cookie"));
-  const isDarkMode = (await session.get("isDarkMode")) ?? DARKMODE_DEFAULT;
+  const session = await getSession(request.headers.get('Cookie'));
+  const isDarkMode = (await session.get('isDarkMode')) ?? DARKMODE_DEFAULT;
   const locale =
-    (await session.get("lng")) ?? (await i18next.getLocale(request));
+    (await session.get('lng')) ?? (await i18next.getLocale(request));
   return json({
     locale,
     user,
@@ -68,9 +68,8 @@ export default function App() {
       </head>
       <body
         className={`${
-          isDarkMode && "dark "
-        }text-foreground bg-background min-h-screen`}
-      >
+          isDarkMode && 'dark '
+        }text-foreground bg-background min-h-screen`}>
         <NextUIProvider>
           <Header
             userExists={user !== null ? true : false}
@@ -97,7 +96,7 @@ export default function App() {
 
 export function ErrorBoundary() {
   const error = useRouteError();
-  const { t } = useTranslation("common");
+  const { t } = useTranslation('common');
   return (
     <html lang="en">
       <head>
@@ -111,10 +110,9 @@ export function ErrorBoundary() {
             <Link
               to="/"
               className="flex flex-row text-foreground items-center"
-              data-testid="error-h1-link-to-root"
-            >
+              data-testid="error-h1-link-to-root">
               <Logo width={30} height={30} className="me-2 text-foreground" />
-              <span className="font-bold text-inherit">{t("brand")}</span>
+              <span className="font-bold text-inherit">{t('brand')}</span>
             </Link>
           </h1>
           <Divider className="my-5" />
@@ -125,15 +123,14 @@ export function ErrorBoundary() {
                 ? `${error.status} ${error.data}`
                 : error instanceof Error
                 ? error.message
-                : "Unknown Error"}
+                : 'Unknown Error'}
             </p>
             <p className="py-5">
               <Link
                 to="/"
                 className="underline"
-                data-testid="error-p-link-to-root"
-              >
-                {t("system.error.home")} &rarr;
+                data-testid="error-p-link-to-root">
+                {t('system.error.home')} &rarr;
               </Link>
             </p>
           </div>

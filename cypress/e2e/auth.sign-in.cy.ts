@@ -1,6 +1,6 @@
 import {
-  AUTHORIZED_USER_INDEX,
   AUTHENTICATION_FAILURE_PATHS,
+  AUTHORIZED_USER_INDEX,
 } from "../../app/utils/utils.common";
 import { t } from "../support/t";
 

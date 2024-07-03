@@ -1,9 +1,9 @@
 import {
-  AUTHORIZED_USER_INDEX,
   AUTHENTICATION_FAILURE_PATHS,
-} from "../../app/utils/utils.common";
+  AUTHORIZED_USER_INDEX,
+} from '../../app/utils/utils.common';
 
-import { t } from "./t";
+import { t } from './t';
 
 // <reference types="cypress" />
 // ***********************************************
@@ -45,7 +45,7 @@ import { t } from "./t";
 //   }
 // }
 
-Cypress.on("uncaught:exception", (err) => {
+Cypress.on('uncaught:exception', (err) => {
   // Cypress and React Hydrating the document don't get along
   // for some unknown reason. Hopefully, we figure out why eventually
   // so we can remove this.
@@ -60,37 +60,37 @@ Cypress.on("uncaught:exception", (err) => {
 
 // Cypress.Commands.add("t", (key, lang) => t(key, lang));
 
-Cypress.Commands.add("changeLocale", (locale) => {
+Cypress.Commands.add('changeLocale', (locale) => {
   cy.get('li[data-testid="language-switcher"]>button[data-slot="trigger"]')
-    .should("be.visible")
+    .should('be.visible')
     .click();
-  cy.get(`li[data-key="${locale}"]`).should("be.visible").click();
+  cy.get(`li[data-key="${locale}"]`).should('be.visible').click();
 });
 
-Cypress.Commands.add("notExistingPage", (locale) => {
-  cy.intercept("/123321").as("page");
-  cy.visit("/123321", { failOnStatusCode: false });
-  cy.wait("@page").its("response.statusCode").should("equal", 404);
-  cy.get("h1")
-    .should("be.visible")
-    .should("contain.text", t("system.error.404", locale));
+Cypress.Commands.add('notExistingPage', (locale) => {
+  cy.intercept('/123321').as('page');
+  cy.visit('/123321', { failOnStatusCode: false });
+  cy.wait('@page').its('response.statusCode').should('equal', 404);
+  cy.get('h1')
+    .should('be.visible')
+    .should('contain.text', t('system.error.404', locale));
   cy.get('a[data-testid="link-home-404"]')
-    .should("be.visible")
-    .should("contain.text", t("system.error.home", locale));
+    .should('be.visible')
+    .should('contain.text', t('system.error.home', locale));
 });
 
 Cypress.Commands.add(
-  "login",
-  (email = "confirmed@domain.test", password = "123321123aA") => {
+  'login',
+  (email = 'confirmed@domain.test', password = '123321123aA') => {
     cy.visit(AUTHENTICATION_FAILURE_PATHS.user).wait(50); //hack for nextui
-    cy.get("input[name=email]").should("be.visible").type(email);
+    cy.get('input[name=email]').should('be.visible').type(email);
 
-    cy.get("input[name=password]").should("be.visible").focus().type(password);
+    cy.get('input[name=password]').should('be.visible').focus().type(password);
 
     cy.get('[data-testid="submit"]').click();
-    cy.url().should("include", AUTHORIZED_USER_INDEX);
+    cy.url().should('include', AUTHORIZED_USER_INDEX);
     // cy.screenshot("TASK[login]: logged in");
 
-    cy.getCookie("_session").should("exist");
-  }
+    cy.getCookie('_session').should('exist');
+  },
 );

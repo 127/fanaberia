@@ -1,41 +1,41 @@
-import { Button, Image } from "@nextui-org/react";
 import {
   ActionFunctionArgs,
-  json,
   LoaderFunctionArgs,
+  json,
   redirect,
-} from "@remix-run/node";
-import { Form, Link, useLoaderData } from "@remix-run/react";
-import { deleteFile, getFileById } from "~/models/file.server";
-import { authenticateUserByRole, fileExists } from "~/utils/utils.server";
-import { promises as fs } from "fs";
+} from '@remix-run/node';
+import { Button, Image } from '@nextui-org/react';
+import { Form, Link, useLoaderData } from '@remix-run/react';
+import { authenticateUserByRole, fileExists } from '~/utils/utils.server';
+import { deleteFile, getFileById } from '~/models/file.server';
+import { promises as fs } from 'fs';
 
 export const loader = async ({ request, params }: LoaderFunctionArgs) => {
-  await authenticateUserByRole(request, "admin");
+  await authenticateUserByRole(request, 'admin');
   if (!params.id) {
-    throw new Response("Not Found", { status: 404 });
+    throw new Response('Not Found', { status: 404 });
   }
   const file = await getFileById(Number(params.id));
   if (!file) {
-    throw new Response("Not Found", { status: 404 });
+    throw new Response('Not Found', { status: 404 });
   }
   return json({ file });
 };
 
 export const action = async ({ request, params }: ActionFunctionArgs) => {
-  await authenticateUserByRole(request, "admin");
+  await authenticateUserByRole(request, 'admin');
   const file = await getFileById(Number(params.id));
   if (!file) {
-    throw new Response("Not Found", { status: 404 });
+    throw new Response('Not Found', { status: 404 });
   }
 
   await fs.unlink(file.path);
   const exists = await fileExists(file.path);
   if (exists) {
-    throw new Error("File not deleted!");
+    throw new Error('File not deleted!');
   }
   await deleteFile(file.id);
-  return redirect("/warp/files");
+  return redirect('/warp/files');
 };
 
 // Компонент для отображения деталей курса

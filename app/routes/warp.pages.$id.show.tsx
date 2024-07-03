@@ -1,18 +1,18 @@
-import { Button } from "@nextui-org/react";
-import { json, LoaderFunctionArgs } from "@remix-run/node";
-import { Link, useLoaderData } from "@remix-run/react";
-import { getPageById } from "~/models/page.server";
-import { authenticateUserByRole } from "~/utils/utils.server";
+import { Button } from '@nextui-org/react';
+import { Link, useLoaderData } from '@remix-run/react';
+import { LoaderFunctionArgs, json } from '@remix-run/node';
+import { authenticateUserByRole } from '~/utils/utils.server';
+import { getPageById } from '~/models/page.server';
 
 export const loader = async ({ request, params }: LoaderFunctionArgs) => {
-  await authenticateUserByRole(request, "admin");
+  await authenticateUserByRole(request, 'admin');
   if (!params.id) {
-    throw new Response("Not Found", { status: 404 });
+    throw new Response('Not Found', { status: 404 });
   }
 
   const page = await getPageById(Number(params.id));
   if (!page) {
-    throw new Response("Not Found", { status: 404 });
+    throw new Response('Not Found', { status: 404 });
   }
 
   return json({ page });
@@ -37,7 +37,7 @@ export default function WarpPagesShow() {
         return (
           <p key={name}>
             <b>{name}:</b>&nbsp;
-            {name.endsWith("_at") && value
+            {name.endsWith('_at') && value
               ? new Date(value as string).toUTCString()
               : (value as string)}
           </p>

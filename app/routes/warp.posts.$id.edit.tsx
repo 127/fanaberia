@@ -1,42 +1,42 @@
-import { json, redirect } from "@remix-run/node";
-import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
-import { useLoaderData, Link, Form, useActionData } from "@remix-run/react";
-import { PostData, getPostById, updatePost } from "~/models/post.server";
-import { Button, Input, Textarea, Select, SelectItem } from "@nextui-org/react";
-import { getCategories } from "~/models/category.server";
-import { authenticateUserByRole } from "~/utils/utils.server";
-import { capitalizeFirstLetter } from "~/utils/utils.common";
-import { useState, useEffect } from "react";
-import postValidaionSchema from "~/validators/postValidationSchema";
-import * as yup from "yup";
+import * as yup from 'yup';
+import { Button, Input, Select, SelectItem, Textarea } from '@nextui-org/react';
+import { Form, Link, useActionData, useLoaderData } from '@remix-run/react';
+import { PostData, getPostById, updatePost } from '~/models/post.server';
+import { authenticateUserByRole } from '~/utils/utils.server';
+import { capitalizeFirstLetter } from '~/utils/utils.common';
+import { getCategories } from '~/models/category.server';
+import { json, redirect } from '@remix-run/node';
+import { useEffect, useState } from 'react';
+import postValidaionSchema from '~/validators/postValidationSchema';
+import type { ActionFunctionArgs, LoaderFunctionArgs } from '@remix-run/node';
 
 export const loader = async ({ request, params }: LoaderFunctionArgs) => {
-  await authenticateUserByRole(request, "admin");
+  await authenticateUserByRole(request, 'admin');
   if (!params.id) {
-    throw new Response("Not Found", { status: 404 });
+    throw new Response('Not Found', { status: 404 });
   }
   const post = await getPostById(Number(params.id));
   if (!post) {
-    throw new Response("Not Found", { status: 404 });
+    throw new Response('Not Found', { status: 404 });
   }
   const categories = await getCategories();
   return json({ post, categories });
 };
 
 export const action = async ({ request, params }: ActionFunctionArgs) => {
-  await authenticateUserByRole(request, "admin");
+  await authenticateUserByRole(request, 'admin');
   const formData = await request.formData();
 
   const fields: PostData = {
-    slug: formData.get("slug") as string,
-    title: formData.get("title") as string,
-    keywords: formData.get("keywords") as string,
-    description: formData.get("description") as string,
-    heading: formData.get("heading") as string,
-    summary: formData.get("summary") as string,
-    content: formData.get("content") as string,
-    picture: formData.get("picture") as string,
-    category_id: Number(formData.get("category_id")),
+    slug: formData.get('slug') as string,
+    title: formData.get('title') as string,
+    keywords: formData.get('keywords') as string,
+    description: formData.get('description') as string,
+    heading: formData.get('heading') as string,
+    summary: formData.get('summary') as string,
+    content: formData.get('content') as string,
+    picture: formData.get('picture') as string,
+    category_id: Number(formData.get('category_id')),
   };
 
   try {
@@ -48,7 +48,7 @@ export const action = async ({ request, params }: ActionFunctionArgs) => {
           ...acc,
           [String(error.path)]: error.message,
         }),
-        {}
+        {},
       );
       // console.log(errors);
       return json({ errors, fields });
@@ -60,12 +60,12 @@ export const action = async ({ request, params }: ActionFunctionArgs) => {
     await updatePost(Number(params.id), fields);
     return redirect(`/warp/posts/${params.id}/show`);
   } catch (error) {
-    return json({ errors: { common: "DB error" }, fields });
+    return json({ errors: { common: 'DB error' }, fields });
   }
 };
 
-const inputs = "slug,title,keywords,description,heading,picture".split(",");
-const textareas = "summary,content".split(",");
+const inputs = 'slug,title,keywords,description,heading,picture'.split(',');
+const textareas = 'summary,content'.split(',');
 
 export default function WarpPostsEdit() {
   const { post, categories } = useLoaderData<typeof loader>();
@@ -101,14 +101,12 @@ export default function WarpPostsEdit() {
           name="category_id"
           label="Category"
           selectionMode="single"
-          defaultSelectedKeys={[values?.category_id ?? categories[0].id]}
-        >
+          defaultSelectedKeys={[values?.category_id ?? categories[0].id]}>
           {categories.map((category) => (
             <SelectItem
               key={String(category.id)}
               value={category.id}
-              textValue={`${category.locale} — ${category.name}`}
-            >
+              textValue={`${category.locale} — ${category.name}`}>
               {category.locale} — {category.name}
             </SelectItem>
           ))}
@@ -142,7 +140,7 @@ export default function WarpPostsEdit() {
             name={name}
             label={capitalizeFirstLetter(name)}
             className="w-full"
-            value={(values?.[name as keyof typeof values] as string) ?? ""}
+            value={(values?.[name as keyof typeof values] as string) ?? ''}
             onChange={(e) => handleChange(name, e.target.value)}
             {...(errors && errors[name as keyof typeof errors]
               ? {

@@ -1,27 +1,27 @@
-import { json, redirect } from "@remix-run/node";
-import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
-import { useLoaderData, Link, Form, useActionData } from "@remix-run/react";
-import { Button, Input, Select, SelectItem } from "@nextui-org/react";
+import * as yup from 'yup';
+import { Button, Input, Select, SelectItem } from '@nextui-org/react';
 import {
   CategoryData,
   getCategoryById,
   updateCategory,
-} from "~/models/category.server";
-import { authenticateUserByRole } from "~/utils/utils.server";
-import { capitalizeFirstLetter } from "~/utils/utils.common";
-import i18n from "~/i18n";
-import * as yup from "yup";
-import categoryValidaionSchema from "~/validators/categoryValidaionSchema";
-import { useState, useEffect } from "react";
+} from '~/models/category.server';
+import { Form, Link, useActionData, useLoaderData } from '@remix-run/react';
+import { authenticateUserByRole } from '~/utils/utils.server';
+import { capitalizeFirstLetter } from '~/utils/utils.common';
+import { json, redirect } from '@remix-run/node';
+import { useEffect, useState } from 'react';
+import categoryValidaionSchema from '~/validators/categoryValidaionSchema';
+import i18n from '~/i18n';
+import type { ActionFunctionArgs, LoaderFunctionArgs } from '@remix-run/node';
 
 export const loader = async ({ request, params }: LoaderFunctionArgs) => {
-  await authenticateUserByRole(request, "admin");
+  await authenticateUserByRole(request, 'admin');
   if (!params.id) {
-    throw new Response("Not Found", { status: 404 });
+    throw new Response('Not Found', { status: 404 });
   }
   const category = await getCategoryById(Number(params.id));
   if (!category) {
-    throw new Response("Not Found", { status: 404 });
+    throw new Response('Not Found', { status: 404 });
   }
 
   const locales = i18n.supportedLngs.map((locale) => ({
@@ -32,17 +32,17 @@ export const loader = async ({ request, params }: LoaderFunctionArgs) => {
 };
 
 export const action = async ({ request, params }: ActionFunctionArgs) => {
-  await authenticateUserByRole(request, "admin");
+  await authenticateUserByRole(request, 'admin');
   const formData = await request.formData();
 
   const fields: CategoryData = {
-    name: formData.get("name") as string,
-    slug: formData.get("slug") as string,
-    title: formData.get("title") as string,
-    keywords: formData.get("keywords") as string,
-    description: formData.get("description") as string,
-    heading: formData.get("heading") as string,
-    locale: formData.get("locale") as string,
+    name: formData.get('name') as string,
+    slug: formData.get('slug') as string,
+    title: formData.get('title') as string,
+    keywords: formData.get('keywords') as string,
+    description: formData.get('description') as string,
+    heading: formData.get('heading') as string,
+    locale: formData.get('locale') as string,
   };
 
   try {
@@ -54,7 +54,7 @@ export const action = async ({ request, params }: ActionFunctionArgs) => {
           ...acc,
           [String(error.path)]: error.message,
         }),
-        {}
+        {},
       );
       // console.log(errors);
       return json({ errors, fields });
@@ -67,11 +67,11 @@ export const action = async ({ request, params }: ActionFunctionArgs) => {
     await updateCategory(Number(params.id), fields);
     return redirect(`/warp/categories/${params.id}/show`);
   } catch (error) {
-    return json({ errors: { common: "DB error" }, fields });
+    return json({ errors: { common: 'DB error' }, fields });
   }
 };
 
-const inputs = "name,slug,title,keywords,description,heading".split(",");
+const inputs = 'name,slug,title,keywords,description,heading'.split(',');
 
 export default function WarpCategoryEdit() {
   const { category, locales } = useLoaderData<typeof loader>();
@@ -110,8 +110,7 @@ export default function WarpCategoryEdit() {
           name="locale"
           label="Locale"
           selectionMode="single"
-          defaultSelectedKeys={[values?.locale]}
-        >
+          defaultSelectedKeys={[values?.locale]}>
           {locales.map((locale) => (
             <SelectItem key={locale.value} value={locale.value}>
               {locale.label}

@@ -1,7 +1,7 @@
-import { defineConfig } from "cypress";
-import { prisma } from "./app/services/db.server";
 import { Prisma } from "@prisma/client";
+import { defineConfig } from "cypress";
 import { init } from "smtp-tester";
+import { prisma } from "./app/services/db.server";
 // import { exec } from "node:child_process";
 
 export default defineConfig({

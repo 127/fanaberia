@@ -1,27 +1,27 @@
-import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
-import { json, redirect } from "@remix-run/node";
-import { Form, Link, useActionData } from "@remix-run/react";
-import { Button, Input } from "@nextui-org/react";
-import { type AdminData, createAdmin } from "~/models/admin.server";
-import { authenticateUserByRole } from "~/utils/utils.server";
-import * as yup from "yup";
-import { useTranslation } from "react-i18next";
-import adminValidationSchema from "~/validators/adminValidationSchema";
-import { useState, useEffect } from "react";
+import * as yup from 'yup';
+import { type AdminData, createAdmin } from '~/models/admin.server';
+import { Button, Input } from '@nextui-org/react';
+import { Form, Link, useActionData } from '@remix-run/react';
+import { authenticateUserByRole } from '~/utils/utils.server';
+import { json, redirect } from '@remix-run/node';
+import { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import adminValidationSchema from '~/validators/adminValidationSchema';
+import type { ActionFunctionArgs, LoaderFunctionArgs } from '@remix-run/node';
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
-  await authenticateUserByRole(request, "admin");
+  await authenticateUserByRole(request, 'admin');
   return json({});
 };
 
 export const action = async ({ request }: ActionFunctionArgs) => {
-  await authenticateUserByRole(request, "admin");
+  await authenticateUserByRole(request, 'admin');
   const formData = await request.formData();
 
   const fields: AdminData = {
-    email: formData.get("email") as string,
-    password: formData.get("password") as string,
-    passwordConfirmation: formData.get("passwordConfirmation") as string,
+    email: formData.get('email') as string,
+    password: formData.get('password') as string,
+    passwordConfirmation: formData.get('passwordConfirmation') as string,
   };
   try {
     // Object.fromEntries(formData)
@@ -33,7 +33,7 @@ export const action = async ({ request }: ActionFunctionArgs) => {
           ...acc,
           [String(error.path)]: error.message,
         }),
-        {}
+        {},
       );
       return json({ errors, fields });
     }
@@ -43,12 +43,12 @@ export const action = async ({ request }: ActionFunctionArgs) => {
     const newAdmin = await createAdmin(fields.email, fields.password as string);
     return redirect(`/warp/admins/${newAdmin.id}/show`);
   } catch (error) {
-    return json({ errors: { common: "DB error" }, fields });
+    return json({ errors: { common: 'DB error' }, fields });
   }
 };
 
 export default function WarpAdminsNew() {
-  const { t } = useTranslation("common");
+  const { t } = useTranslation('common');
   const actionData = useActionData<typeof action>();
   const [values, setValues] = useState<AdminData>();
   const [errors, setErrors] = useState(actionData?.errors);
@@ -60,7 +60,7 @@ export default function WarpAdminsNew() {
 
     if (errors?.[name as keyof typeof errors]) {
       setErrors((prevErrors) => ({ ...prevErrors, [name]: undefined }));
-      console.log("errors", errors);
+      console.log('errors', errors);
     }
   };
 
@@ -83,53 +83,53 @@ export default function WarpAdminsNew() {
         <Input
           isRequired
           type="text"
-          label={t("commom.label.email")}
+          label={t('commom.label.email')}
           name="email"
           variant="bordered"
           autoComplete="username email"
-          value={(values?.["email" as keyof typeof values] as string) ?? ""}
-          onChange={(e) => handleChange("email", e.target.value)}
-          {...(errors && errors["email" as keyof typeof errors]
+          value={(values?.['email' as keyof typeof values] as string) ?? ''}
+          onChange={(e) => handleChange('email', e.target.value)}
+          {...(errors && errors['email' as keyof typeof errors]
             ? {
                 isInvalid: true,
-                errorMessage: t(errors["email" as keyof typeof errors]),
+                errorMessage: t(errors['email' as keyof typeof errors]),
               }
             : {})}
         />
         <Input
           isRequired
-          label={t("commom.label.password")}
+          label={t('commom.label.password')}
           name="password"
           type="password"
           variant="bordered"
           autoComplete="new-password"
-          value={(values?.["password" as keyof typeof values] as string) ?? ""}
-          onChange={(e) => handleChange("password", e.target.value)}
-          {...(errors && errors["password" as keyof typeof errors]
+          value={(values?.['password' as keyof typeof values] as string) ?? ''}
+          onChange={(e) => handleChange('password', e.target.value)}
+          {...(errors && errors['password' as keyof typeof errors]
             ? {
                 isInvalid: true,
-                errorMessage: t(errors["password" as keyof typeof errors]),
+                errorMessage: t(errors['password' as keyof typeof errors]),
               }
             : {})}
         />
         <Input
           isRequired
-          label={t("sign.up.label.password.confirmation")}
+          label={t('sign.up.label.password.confirmation')}
           type="password"
           name="passwordConfirmation"
           variant="bordered"
           autoComplete="new-password"
           value={
             (values?.[
-              "passwordConfirmation" as keyof typeof values
-            ] as string) ?? ""
+              'passwordConfirmation' as keyof typeof values
+            ] as string) ?? ''
           }
-          onChange={(e) => handleChange("passwordConfirmation", e.target.value)}
-          {...(errors && errors["passwordConfirmation" as keyof typeof errors]
+          onChange={(e) => handleChange('passwordConfirmation', e.target.value)}
+          {...(errors && errors['passwordConfirmation' as keyof typeof errors]
             ? {
                 isInvalid: true,
                 errorMessage: t(
-                  errors["passwordConfirmation" as keyof typeof errors]
+                  errors['passwordConfirmation' as keyof typeof errors],
                 ),
               }
             : {})}

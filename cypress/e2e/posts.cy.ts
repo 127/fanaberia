@@ -1,8 +1,8 @@
 /**
  * @description posts multilang check without authentication
  */
-import i18n from "../../app/i18n";
 import { t } from "../support/t";
+import i18n from "../../app/i18n";
 // TODO: pagination test at index
 // TODO: pagination test at categories
 describe("posts multilang check without authentication", () => {

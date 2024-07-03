@@ -1,25 +1,25 @@
-import { PrismaClient, Category, Post, Page, PostTag } from "@prisma/client";
-import bcrypt from "bcryptjs";
-import { allFakers } from "@faker-js/faker";
-import i18n from "~/i18n";
-import { generateToken } from "~/utils/utils.server";
+import { Category, Page, Post, PostTag, PrismaClient } from '@prisma/client';
+import { allFakers } from '@faker-js/faker';
+import { generateToken } from '~/utils/utils.server';
+import bcrypt from 'bcryptjs';
+import i18n from '~/i18n';
 
 const capitalizeFirstLetter = (str: string): string =>
   str.charAt(0).toUpperCase() + str.slice(1);
 const defaultLocale = i18n.supportedLngs[0] as keyof typeof allFakers;
 const prisma = new PrismaClient();
 
-const INFO_PAGES = ["support", "contacts", "privacy", "terms", "faq"];
+const INFO_PAGES = ['support', 'contacts', 'privacy', 'terms', 'faq'];
 
 async function seed() {
-  const email = "confirmed@domain.test";
+  const email = 'confirmed@domain.test';
 
   // // cleanup the existing database
   // await prisma.user.delete({ where: { email } }).catch(() => {
   //   // no worries if it doesn't exist yet
   // });
 
-  const hashedPassword = await bcrypt.hash("123321123aA", 10);
+  const hashedPassword = await bcrypt.hash('123321123aA', 10);
 
   await prisma.user.create({
     data: {
@@ -31,7 +31,7 @@ async function seed() {
 
   await prisma.user.create({
     data: {
-      email: "confirmed-to-recover@domain.test",
+      email: 'confirmed-to-recover@domain.test',
       password: hashedPassword,
       confirmed_at: new Date(),
     },
@@ -39,7 +39,7 @@ async function seed() {
 
   await prisma.user.create({
     data: {
-      email: "unconfirmed@domain.test",
+      email: 'unconfirmed@domain.test',
       password: hashedPassword,
       confirmation_token: generateToken(64),
     },
@@ -50,13 +50,13 @@ async function seed() {
   await Promise.all([
     prisma.admin.create({
       data: {
-        email: "admin1@example.com",
+        email: 'admin1@example.com',
         password: hashedPassword,
       },
     }),
     prisma.admin.create({
       data: {
-        email: "admin2@example.com",
+        email: 'admin2@example.com',
         password: hashedPassword,
       },
     }),
@@ -71,7 +71,7 @@ async function seed() {
       const categoryPromise = prisma.category.create({
         data: {
           name: capitalizeFirstLetter(allFakers[lc].commerce.department()),
-          slug: allFakers["en"].lorem.slug(),
+          slug: allFakers['en'].lorem.slug(),
           title: allFakers[lc].lorem.sentence(),
           keywords: allFakers[lc].lorem.words(),
           description: allFakers[lc].lorem.paragraph(),
@@ -87,7 +87,7 @@ async function seed() {
           postPromises.push(
             prisma.post.create({
               data: {
-                slug: allFakers["en"].lorem.slug(),
+                slug: allFakers['en'].lorem.slug(),
                 title: allFakers[lc].lorem.sentence(),
                 keywords: allFakers[lc].lorem.words(),
                 description: allFakers[lc].lorem.paragraph(),
@@ -96,7 +96,7 @@ async function seed() {
                 content: allFakers[lc].lorem.paragraphs(4),
                 category_id: category.id,
               },
-            })
+            }),
           );
         }
       });
@@ -118,7 +118,7 @@ async function seed() {
           description: allFakers[defaultLocale].lorem.paragraph(),
           heading: allFakers[defaultLocale].lorem.sentence(),
         },
-      })
+      }),
     );
   }
 
@@ -152,7 +152,7 @@ async function seed() {
             post_id: post.id,
             tag_id: tagId,
           },
-        })
+        }),
       );
     }
   });

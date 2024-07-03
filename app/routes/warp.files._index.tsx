@@ -1,12 +1,12 @@
-import { Button, Card, CardBody, CardFooter, Image } from "@nextui-org/react";
-import { LoaderFunctionArgs, json } from "@remix-run/node";
-import { Link, useLoaderData } from "@remix-run/react";
-import CopyToClipboard from "~/components/CopyToClipboard";
-import { getFiles } from "~/models/file.server";
-import { authenticateUserByRole } from "~/utils/utils.server";
+import { Button, Card, CardBody, CardFooter, Image } from '@nextui-org/react';
+import { Link, useLoaderData } from '@remix-run/react';
+import { LoaderFunctionArgs, json } from '@remix-run/node';
+import { authenticateUserByRole } from '~/utils/utils.server';
+import { getFiles } from '~/models/file.server';
+import CopyToClipboard from '~/components/CopyToClipboard';
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
-  await authenticateUserByRole(request, "admin");
+  await authenticateUserByRole(request, 'admin');
   const files = await getFiles();
   return json({ files });
 };
@@ -27,7 +27,7 @@ export default function WarFilesIndex() {
               <Link to={`/warp/files/${file.id}/show`}>
                 <Image
                   src={`/storage/${file.name}`}
-                  alt={file.alt ?? ""}
+                  alt={file.alt ?? ''}
                   className="max-h-60"
                 />
               </Link>

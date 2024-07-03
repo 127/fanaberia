@@ -2,8 +2,8 @@
  * @description terms page test covers all module pages tests
  */
 import { SIGNUP_USER_PATH } from "../../app/utils/utils.common";
-import i18n from "../../app/i18n";
 import { t } from "../support/t";
+import i18n from "../../app/i18n";
 
 describe("terms pages multilang check without authentication", () => {
   i18n.supportedLngs.forEach((locale) => {

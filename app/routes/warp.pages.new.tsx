@@ -1,17 +1,17 @@
-import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
-import { json, redirect } from "@remix-run/node";
-import { Form, Link, useActionData, useLoaderData } from "@remix-run/react";
-import { Button, Input, Select, SelectItem, Textarea } from "@nextui-org/react";
-import { PageData, createPage } from "~/models/page.server";
-import { authenticateUserByRole } from "~/utils/utils.server";
-import i18n from "~/i18n";
-import { capitalizeFirstLetter } from "~/utils/utils.common";
-import pageValidaionSchema from "~/validators/pageValidationSchema";
-import * as yup from "yup";
-import { useEffect, useState } from "react";
+import * as yup from 'yup';
+import { Button, Input, Select, SelectItem, Textarea } from '@nextui-org/react';
+import { Form, Link, useActionData, useLoaderData } from '@remix-run/react';
+import { PageData, createPage } from '~/models/page.server';
+import { authenticateUserByRole } from '~/utils/utils.server';
+import { capitalizeFirstLetter } from '~/utils/utils.common';
+import { json, redirect } from '@remix-run/node';
+import { useEffect, useState } from 'react';
+import i18n from '~/i18n';
+import pageValidaionSchema from '~/validators/pageValidationSchema';
+import type { ActionFunctionArgs, LoaderFunctionArgs } from '@remix-run/node';
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
-  await authenticateUserByRole(request, "admin");
+  await authenticateUserByRole(request, 'admin');
   const locales = i18n.supportedLngs.map((locale) => ({
     label: capitalizeFirstLetter(locale),
     value: locale,
@@ -20,17 +20,17 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
 };
 
 export const action = async ({ request }: ActionFunctionArgs) => {
-  await authenticateUserByRole(request, "admin");
+  await authenticateUserByRole(request, 'admin');
   const formData = await request.formData();
   const fields: PageData = {
-    name: formData.get("name") as string,
-    slug: formData.get("slug") as string,
-    title: formData.get("title") as string,
-    keywords: formData.get("keywords") as string,
-    description: formData.get("description") as string,
-    heading: formData.get("heading") as string,
-    locale: formData.get("locale") as string,
-    content: formData.get("content") as string,
+    name: formData.get('name') as string,
+    slug: formData.get('slug') as string,
+    title: formData.get('title') as string,
+    keywords: formData.get('keywords') as string,
+    description: formData.get('description') as string,
+    heading: formData.get('heading') as string,
+    locale: formData.get('locale') as string,
+    content: formData.get('content') as string,
   };
 
   try {
@@ -42,7 +42,7 @@ export const action = async ({ request }: ActionFunctionArgs) => {
           ...acc,
           [String(error.path)]: error.message,
         }),
-        {}
+        {},
       );
       // console.log(errors);
       return json({ errors, fields });
@@ -54,11 +54,11 @@ export const action = async ({ request }: ActionFunctionArgs) => {
     const newPage = await createPage(fields);
     return redirect(`/warp/pages/${newPage.id}/show`);
   } catch (error) {
-    return json({ errors: { common: "DB error" }, fields });
+    return json({ errors: { common: 'DB error' }, fields });
   }
 };
 
-const inputs = "name,slug,title,keywords,description,heading".split(",");
+const inputs = 'name,slug,title,keywords,description,heading'.split(',');
 
 export default function WarpPagesNew() {
   const { locales } = useLoaderData<typeof loader>();
@@ -95,8 +95,7 @@ export default function WarpPagesNew() {
           name="locale"
           label="Locale"
           selectionMode="single"
-          defaultSelectedKeys={[values?.locale ?? locales[0].value]}
-        >
+          defaultSelectedKeys={[values?.locale ?? locales[0].value]}>
           {locales.map((locale) => (
             <SelectItem key={locale.value} value={locale.value}>
               {locale.label}
@@ -112,7 +111,7 @@ export default function WarpPagesNew() {
             label={capitalizeFirstLetter(name)}
             type="text"
             className="w-full"
-            value={values?.[name as keyof typeof values] ?? ""}
+            value={values?.[name as keyof typeof values] ?? ''}
             onChange={(e) => handleChange(name, e.target.value)}
             {...(errors && errors[name as keyof typeof errors]
               ? {
@@ -129,12 +128,12 @@ export default function WarpPagesNew() {
           label="Content"
           type="text"
           className="w-full"
-          value={values?.["content" as keyof typeof values] ?? ""}
-          onChange={(e) => handleChange("content", e.target.value)}
-          {...(errors && errors["content" as keyof typeof errors]
+          value={values?.['content' as keyof typeof values] ?? ''}
+          onChange={(e) => handleChange('content', e.target.value)}
+          {...(errors && errors['content' as keyof typeof errors]
             ? {
                 isInvalid: true,
-                errorMessage: errors["content" as keyof typeof errors],
+                errorMessage: errors['content' as keyof typeof errors],
               }
             : {})}
         />

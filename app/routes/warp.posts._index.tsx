@@ -6,24 +6,24 @@ import {
   TableColumn,
   TableHeader,
   TableRow,
-} from "@nextui-org/react";
-import type { LoaderFunctionArgs } from "@remix-run/node";
-import { json } from "@remix-run/node";
-import { useLoaderData, Link } from "@remix-run/react";
-import { getPosts } from "~/models/post.server";
-import { authenticateUserByRole } from "~/utils/utils.server";
+} from '@nextui-org/react';
+import { Link, useLoaderData } from '@remix-run/react';
+import { authenticateUserByRole } from '~/utils/utils.server';
+import { getPosts } from '~/models/post.server';
+import { json } from '@remix-run/node';
+import type { LoaderFunctionArgs } from '@remix-run/node';
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
-  await authenticateUserByRole(request, "admin");
+  await authenticateUserByRole(request, 'admin');
   const posts = await getPosts();
   return json({ posts });
 };
 
-const filtered = ["title", "description", "keywords", "content"];
+const filtered = ['title', 'description', 'keywords', 'content'];
 export default function WarpPostsIndex() {
   const { posts } = useLoaderData<typeof loader>();
   const cols = Object.keys(posts[0]).filter(
-    (column) => !filtered.includes(column)
+    (column) => !filtered.includes(column),
   );
 
   return (
@@ -36,8 +36,8 @@ export default function WarpPostsIndex() {
         <TableHeader>
           {cols.map((column) => (
             <TableColumn key={column}>
-              {column.replace(/_/g, " ").charAt(0).toUpperCase() +
-                column.slice(1).replace(/_/g, " ")}
+              {column.replace(/_/g, ' ').charAt(0).toUpperCase() +
+                column.slice(1).replace(/_/g, ' ')}
             </TableColumn>
           ))}
         </TableHeader>
@@ -48,19 +48,18 @@ export default function WarpPostsIndex() {
                 const value = post[key as keyof typeof post];
                 let cellValue;
                 switch (key) {
-                  case "id":
+                  case 'id':
                     cellValue = (
                       <Link to={`${post.id}/show`} className="underline">
                         {value as string}
                       </Link>
                     );
                     break;
-                  case "category":
+                  case 'category':
                     cellValue = (
                       <Link
                         to={`/warp/categories/${post[key]?.id}/show`}
-                        className="underline"
-                      >
+                        className="underline">
                         {post[key]?.name}
                       </Link>
                     );
@@ -68,7 +67,7 @@ export default function WarpPostsIndex() {
                   default:
                     cellValue = (
                       <span>
-                        {key.endsWith("_at") && value
+                        {key.endsWith('_at') && value
                           ? new Date(value as string).toUTCString()
                           : (value as string)}
                       </span>

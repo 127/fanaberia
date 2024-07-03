@@ -1,20 +1,20 @@
-import { Button } from "@nextui-org/react";
-import { json, LoaderFunctionArgs } from "@remix-run/node";
-import { Link, useLoaderData } from "@remix-run/react";
-import { getUserById } from "~/models/user.server";
-import { capitalizeFirstLetter } from "~/utils/utils.common";
-import { authenticateUserByRole } from "~/utils/utils.server";
+import { Button } from '@nextui-org/react';
+import { Link, useLoaderData } from '@remix-run/react';
+import { LoaderFunctionArgs, json } from '@remix-run/node';
+import { authenticateUserByRole } from '~/utils/utils.server';
+import { capitalizeFirstLetter } from '~/utils/utils.common';
+import { getUserById } from '~/models/user.server';
 
 // Loader: Загружаем данные курса
 export const loader = async ({ request, params }: LoaderFunctionArgs) => {
-  await authenticateUserByRole(request, "admin");
+  await authenticateUserByRole(request, 'admin');
   if (!params.id) {
-    throw new Response("Not Found", { status: 404 });
+    throw new Response('Not Found', { status: 404 });
   }
 
   const user = await getUserById(Number(params.id));
   if (!user) {
-    throw new Response("Not Found", { status: 404 });
+    throw new Response('Not Found', { status: 404 });
   }
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const { password, ...userWithoutPassword } = user;
@@ -42,7 +42,7 @@ export default function WarpUsersShow() {
           default:
             cellValue = (
               <span>
-                {key.endsWith("_at") && value
+                {key.endsWith('_at') && value
                   ? new Date(value as string).toUTCString()
                   : (value as string)}
               </span>

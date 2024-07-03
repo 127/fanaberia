@@ -1,31 +1,31 @@
-import invariant from "tiny-invariant";
-import type { Admin, User } from "@prisma/client";
-import { Authenticator, AuthorizationError } from "remix-auth";
-import { sessionStorage } from "~/services/session.server";
-import { FormStrategy } from "remix-auth-form";
-import { validateFormUser, findOrCreateOauthUser } from "~/models/user.server";
-import { validateFormAdmin } from "~/models/admin.server";
-import { GoogleStrategy, SocialsProvider } from "remix-auth-socials";
-import userSignInValidationSchema from "~/validators/userSignInValidationSchema";
-import * as yup from "yup";
+import * as yup from 'yup';
+import { Authenticator, AuthorizationError } from 'remix-auth';
+import { FormStrategy } from 'remix-auth-form';
+import { GoogleStrategy, SocialsProvider } from 'remix-auth-socials';
+import { findOrCreateOauthUser, validateFormUser } from '~/models/user.server';
+import { sessionStorage } from '~/services/session.server';
+import { validateFormAdmin } from '~/models/admin.server';
+import invariant from 'tiny-invariant';
+import userSignInValidationSchema from '~/validators/userSignInValidationSchema';
+import type { Admin, User } from '@prisma/client';
 
-invariant(process.env.GOOGLE_CLIENT_ID, "FACEBOOK_CLIENT_ID must be set");
-invariant(process.env.GOOGLE_CLIENT_SECRET, "GOOGLE_CLIENT_SECRET must be set");
+invariant(process.env.GOOGLE_CLIENT_ID, 'FACEBOOK_CLIENT_ID must be set');
+invariant(process.env.GOOGLE_CLIENT_SECRET, 'GOOGLE_CLIENT_SECRET must be set');
 
 export const authenticator = new Authenticator<User | Admin>(sessionStorage, {
-  sessionErrorKey: "sessionErrorKey",
+  sessionErrorKey: 'sessionErrorKey',
 });
 
 authenticator.use(
   new FormStrategy(async ({ form, context }) => {
     if (!context) {
       throw new AuthorizationError(
-        JSON.stringify({ errors: { common: "sing.in.context.ip" } })
+        JSON.stringify({ errors: { common: 'sing.in.context.ip' } }),
       );
     }
     const formObj = Object.fromEntries(form);
-    const email = form.get("email") as string;
-    const password = form.get("password") as string;
+    const email = form.get('email') as string;
+    const password = form.get('password') as string;
     try {
       await userSignInValidationSchema.validate(formObj, { abortEarly: false });
     } catch (err) {
@@ -35,10 +35,10 @@ authenticator.use(
             ...acc,
             [String(error.path)]: error.message,
           }),
-          {}
+          {},
         );
         throw new AuthorizationError(
-          JSON.stringify({ errors, fields: { email, password } })
+          JSON.stringify({ errors, fields: { email, password } }),
         );
       }
     }
@@ -48,22 +48,22 @@ authenticator.use(
     if (!user) {
       throw new AuthorizationError(
         JSON.stringify({
-          errors: { common: "sing.in.error.common" },
+          errors: { common: 'sing.in.error.common' },
           fields: { email, password },
-        })
+        }),
       );
     } else if (!user.confirmed_at) {
       throw new AuthorizationError(
         JSON.stringify({
-          errors: { common: "sing.in.error.confirm" },
+          errors: { common: 'sing.in.error.confirm' },
           fields: { email, password },
-        })
+        }),
       );
     } else {
       return await Promise.resolve({ ...(user as User) });
     }
   }),
-  "form"
+  'form',
 );
 
 authenticator.use(
@@ -76,33 +76,33 @@ authenticator.use(
     async ({ profile, context }) => {
       if (!context) {
         throw new AuthorizationError(
-          JSON.stringify({ errors: { common: "sing.in.context.ip" } })
+          JSON.stringify({ errors: { common: 'sing.in.context.ip' } }),
         );
       }
       // console.log('profile', profile);
       const user = await findOrCreateOauthUser(
         profile._json.email,
-        "fb",
-        context.ip as string
+        'fb',
+        context.ip as string,
       );
       // console.log('user', user);
       if (!user) {
         throw new AuthorizationError(
-          JSON.stringify({ errors: { common: "sing.in.error.social" } })
+          JSON.stringify({ errors: { common: 'sing.in.error.social' } }),
         );
       }
       return await Promise.resolve({ ...user });
-    }
+    },
   ),
-  "google"
+  'google',
 );
 
 authenticator.use(
   new FormStrategy(async ({ form }) => {
     const formObj = Object.fromEntries(form);
 
-    const email = form.get("email") as string;
-    const password = form.get("password") as string;
+    const email = form.get('email') as string;
+    const password = form.get('password') as string;
     try {
       await userSignInValidationSchema.validate(formObj, { abortEarly: false });
     } catch (err) {
@@ -112,10 +112,10 @@ authenticator.use(
             ...acc,
             [String(error.path)]: error.message,
           }),
-          {}
+          {},
         );
         throw new AuthorizationError(
-          JSON.stringify({ errors, fields: { email, password } })
+          JSON.stringify({ errors, fields: { email, password } }),
         );
       }
     }
@@ -124,10 +124,10 @@ authenticator.use(
     // console.log('admin', admin);
     if (!user) {
       throw new AuthorizationError(
-        JSON.stringify({ errors: { common: "sing.in.error.common" } })
+        JSON.stringify({ errors: { common: 'sing.in.error.common' } }),
       );
     }
     return await Promise.resolve({ ...(user as Admin) });
   }),
-  "form-admin"
+  'form-admin',
 );

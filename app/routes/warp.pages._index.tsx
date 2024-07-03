@@ -6,25 +6,25 @@ import {
   TableColumn,
   TableHeader,
   TableRow,
-} from "@nextui-org/react";
-import type { LoaderFunctionArgs } from "@remix-run/node";
-import { json } from "@remix-run/node";
-import { useLoaderData, Link } from "@remix-run/react";
-import { getPages } from "~/models/page.server";
-import { authenticateUserByRole } from "~/utils/utils.server";
+} from '@nextui-org/react';
+import { Link, useLoaderData } from '@remix-run/react';
+import { authenticateUserByRole } from '~/utils/utils.server';
+import { getPages } from '~/models/page.server';
+import { json } from '@remix-run/node';
+import type { LoaderFunctionArgs } from '@remix-run/node';
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
-  await authenticateUserByRole(request, "admin");
+  await authenticateUserByRole(request, 'admin');
   const pages = await getPages();
   return json({ pages });
 };
 
-const filtered = ["title", "description", "keywords", "content"];
+const filtered = ['title', 'description', 'keywords', 'content'];
 
 export default function WarpPagesIndex() {
   const { pages } = useLoaderData<typeof loader>();
   const cols = Object.keys(pages[0]).filter(
-    (column) => !filtered.includes(column)
+    (column) => !filtered.includes(column),
   );
 
   return (
@@ -37,8 +37,8 @@ export default function WarpPagesIndex() {
         <TableHeader>
           {cols.map((column) => (
             <TableColumn key={column}>
-              {column.replace(/_/g, " ").charAt(0).toUpperCase() +
-                column.slice(1).replace(/_/g, " ")}
+              {column.replace(/_/g, ' ').charAt(0).toUpperCase() +
+                column.slice(1).replace(/_/g, ' ')}
             </TableColumn>
           ))}
         </TableHeader>
@@ -49,11 +49,11 @@ export default function WarpPagesIndex() {
                 const value = page[key as keyof typeof page];
                 return (
                   <TableCell key={`cell-${key}`}>
-                    {key === "id" ? (
+                    {key === 'id' ? (
                       <Link to={`${page.id}/show`} className="underline">
                         {value}
                       </Link>
-                    ) : key.endsWith("_at") && value ? (
+                    ) : key.endsWith('_at') && value ? (
                       new Date(value as string).toUTCString()
                     ) : (
                       (value as string)
